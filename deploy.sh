@@ -69,8 +69,17 @@ NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
 # Copy entrypoint into build dir (matches what the official build.sh does).
 cp -f server/main.js build/server/main.js
 
+# Rollup's TS plugin compiles imports but doesn't copy already-compiled .mjs
+# Lingui catalogs into the bundle. The Hono runtime imports them via dynamic
+# `import('packages/lib/translations/<locale>/web.mjs')`, so we mirror them
+# into the rolled-up output directory.
+mkdir -p build/server/hono/packages/lib/translations
+cp -r "$REPO_DIR"/packages/lib/translations/* build/server/hono/packages/lib/translations/
+
 [[ -f build/server/main.js ]] || die "build/server/main.js missing after build"
 [[ -f build/server/index.js ]] || die "build/server/index.js missing after build"
+[[ -f build/server/hono/packages/lib/translations/en/web.mjs ]] \
+  || die "translations not copied into build/server/hono/"
 
 cd "$REPO_DIR"
 
