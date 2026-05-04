@@ -17,7 +17,7 @@ REPO_DIR="${REPO_DIR:-/opt/freesign/app}"
 ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
 BRANCH="${1:-origin/main}"
 SERVICE="${SERVICE:-freesign}"
-NODE_HEAP_MB="${NODE_HEAP_MB:-1500}"
+NODE_HEAP_MB="${NODE_HEAP_MB:-3072}"
 
 log() { printf '\n\033[1;32m[deploy]\033[0m %s\n' "$*"; }
 warn() { printf '\n\033[1;33m[deploy:warn]\033[0m %s\n' "$*" >&2; }
