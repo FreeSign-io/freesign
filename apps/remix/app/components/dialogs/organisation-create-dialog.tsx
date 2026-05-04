@@ -415,7 +415,7 @@ const BillingPlanForm = ({
         ))}
 
         <Link
-          to="https://documen.so/enterprise-cta"
+          to="https://github.com/FreeSign-io/freesign"
           target="_blank"
           className="bg-muted/30 flex items-center space-x-2 rounded-md border p-4"
         >
@@ -433,7 +433,7 @@ const BillingPlanForm = ({
 
       <div className="mt-6 text-center">
         <Link
-          to="https://documenso.com/pricing"
+          to="https://freesign.io"
           className="text-primary hover:text-primary/80 flex items-center justify-center gap-1 text-sm hover:underline"
           target="_blank"
         >

@@ -16,8 +16,8 @@ export const TemplateFooter = ({ isDocument = true }: TemplateFooterProps) => {
         <Text className="my-4 text-base text-slate-400">
           <Trans>
             This document was sent using{' '}
-            <Link className="text-[#7AC455]" href="https://documen.so/mail-footer">
-              Documenso
+            <Link className="text-[#10b981]" href="https://freesign.io">
+              FreeSign
             </Link>
             .
           </Trans>
@@ -39,9 +39,11 @@ export const TemplateFooter = ({ isDocument = true }: TemplateFooterProps) => {
 
       {!branding.brandingEnabled && (
         <Text className="my-8 text-sm text-slate-400">
-          Documenso, Inc.
+          FreeSign — open-source eSignature
           <br />
-          2261 Market Street, #5211, San Francisco, CA 94114, USA
+          <Link href="https://github.com/FreeSign-io/freesign">
+            github.com/FreeSign-io/freesign
+          </Link>
         </Text>
       )}
     </Section>

@@ -797,7 +797,7 @@ const OrganisationAdminForm = ({ organisation, licenseFlags }: OrganisationAdmin
                 <span>¹&nbsp;</span>
                 <Trans>Your current license does not include these features.</Trans>{' '}
                 <Link
-                  to="https://docs.documenso.com/users/licenses/enterprise-edition"
+                  to="https://github.com/FreeSign-io/freesign"
                   target="_blank"
                   className="text-foreground underline hover:opacity-80"
                 >

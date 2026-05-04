@@ -68,7 +68,7 @@ export const AdminLicenseCard = ({ licenseData }: AdminLicenseCardProps) => {
               )}
 
               <Link
-                to="https://docs.documenso.com/users/licenses/enterprise-edition"
+                to="https://github.com/FreeSign-io/freesign"
                 target="_blank"
                 className="flex flex-row items-center text-xs text-muted-foreground hover:text-muted-foreground/80"
               >
@@ -95,7 +95,7 @@ export const AdminLicenseCard = ({ licenseData }: AdminLicenseCardProps) => {
         </div>
 
         <h3 className="text-primary-forground mb-2 flex items-end text-sm font-medium leading-tight">
-          <Trans>Documenso License</Trans>
+          <Trans>FreeSign License</Trans>
         </h3>
 
         {match(license.status)

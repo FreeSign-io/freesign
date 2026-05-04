@@ -31,7 +31,7 @@ export type ConfirmTeamEmailProps = {
 
 export const ConfirmTeamEmailTemplate = ({
   assetBaseUrl = 'http://localhost:3002',
-  baseUrl = 'https://documenso.com',
+  baseUrl = 'https://freesign.io',
   teamName = 'Team Name',
   teamUrl = 'demo',
   token = '',

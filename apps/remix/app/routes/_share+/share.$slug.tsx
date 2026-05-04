@@ -13,15 +13,15 @@ export function meta({ params: { slug } }: Route.MetaArgs) {
   }
 
   return [
-    { title: 'Documenso - Share' },
-    { description: 'I just signed a document in style with Documenso!' },
+    { title: 'FreeSign - Share' },
+    { description: 'I just signed a document in style with FreeSign!' },
     {
       property: 'og:title',
-      content: 'Documenso - Join the open source signing revolution',
+      content: 'FreeSign - Join the open source signing revolution',
     },
     {
       property: 'og:description',
-      content: 'I just signed with Documenso!',
+      content: 'I just signed with FreeSign!',
     },
     {
       property: 'og:type',
@@ -33,7 +33,7 @@ export function meta({ params: { slug } }: Route.MetaArgs) {
     },
     {
       name: 'twitter:site',
-      content: '@documenso',
+      content: '@freesign_io',
     },
     {
       name: 'twitter:card',
@@ -45,7 +45,7 @@ export function meta({ params: { slug } }: Route.MetaArgs) {
     },
     {
       name: 'twitter:description',
-      content: 'I just signed with Documenso!',
+      content: 'I just signed with FreeSign!',
     },
   ];
 }
@@ -70,8 +70,8 @@ export const loader = async ({ request, params: { slug } }: Route.LoaderArgs) =>
     return {};
   }
 
-  // Is hardcoded because this whole meta is hardcoded anyway for Documenso.
-  throw redirect('https://documenso.com');
+  // Is hardcoded because this whole meta is hardcoded anyway for FreeSign.
+  throw redirect('https://freesign.io');
 };
 
 export default function SharePage() {

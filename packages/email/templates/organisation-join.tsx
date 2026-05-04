@@ -18,9 +18,9 @@ export type OrganisationJoinEmailProps = {
 
 export const OrganisationJoinEmailTemplate = ({
   assetBaseUrl = 'http://localhost:3002',
-  baseUrl = 'https://documenso.com',
+  baseUrl = 'https://freesign.io',
   memberName = 'John Doe',
-  memberEmail = 'johndoe@documenso.com',
+  memberEmail = 'johndoe@example.com',
   organisationName = 'Organisation Name',
   organisationUrl = 'demo',
 }: OrganisationJoinEmailProps) => {

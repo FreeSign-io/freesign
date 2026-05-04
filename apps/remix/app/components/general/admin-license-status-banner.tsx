@@ -43,12 +43,12 @@ export const AdminLicenseStatusBanner = ({ license }: AdminLicenseStatusBannerPr
             .with('UNAUTHORIZED', () =>
               license ? (
                 <Trans>
-                  Invalid License Type - Your Documenso instance is using features that are not part
+                  Invalid License Type - Your FreeSign instance is using features that are not part
                   of your license.
                 </Trans>
               ) : (
                 <Trans>
-                  Missing License - Your Documenso instance is using features that require a
+                  Missing License - Your FreeSign instance is using features that require a
                   license.
                 </Trans>
               ),
@@ -67,7 +67,7 @@ export const AdminLicenseStatusBanner = ({ license }: AdminLicenseStatusBannerPr
           })}
           asChild
         >
-          <Link to="https://docs.documenso.com/users/licenses/enterprise-edition" target="_blank">
+          <Link to="https://github.com/FreeSign-io/freesign" target="_blank">
             <KeyRoundIcon className="mr-1.5 h-4 w-4" />
             <Trans>See Documentation</Trans>
           </Link>
