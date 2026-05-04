@@ -84,6 +84,13 @@ cp -r "$REPO_DIR"/packages/lib/translations/* build/server/hono/packages/lib/tra
 cd "$REPO_DIR"
 
 log "Reloading systemd unit + restarting $SERVICE"
+# Re-sync translations one more time as a belt-and-braces guard. If a previous
+# deploy was interrupted between the rollup output and the cp above, the
+# translations dir would be missing and the service would crash-loop.
+mkdir -p "$REPO_DIR/apps/remix/build/server/hono/packages/lib/translations"
+cp -rf "$REPO_DIR"/packages/lib/translations/* \
+  "$REPO_DIR/apps/remix/build/server/hono/packages/lib/translations/"
+
 systemctl daemon-reload
 systemctl restart "$SERVICE"
 
