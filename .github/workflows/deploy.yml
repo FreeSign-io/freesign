@@ -1,24 +1,31 @@
-name: Deploy to Production
+name: Deploy
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    name: Deploy to freesign.io
     runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Run deploy.sh on the freesign server
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          ref: main
-          fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
-
-      - name: Push to release branch
-        run: |
-          git checkout release || git checkout -b release
-          git merge --ff-only main
-          git push origin release
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+          command_timeout: 30m
+          script_stop: true
+          script: |
+            set -euo pipefail
+            sudo /opt/freesign/app/deploy.sh
