@@ -131,6 +131,9 @@ export const AdminOrganisationMemberUpdateDialog = ({
     form.reset({
       role: currentRoleValue,
     });
+    // Sync-from-prop on open: intentionally only re-runs when `open` flips. Listing every dep
+    // ESLint suggests (incl. `form`'s methods) would either re-run on every render or clobber
+    // mid-edit user input.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, currentRoleValue, form]);
 

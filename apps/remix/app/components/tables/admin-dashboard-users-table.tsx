@@ -100,6 +100,9 @@ export const AdminDashboardUsersTable = ({
         perPage,
       });
     });
+    // Search-driven refetch: intentionally only re-runs when the debounced search string
+    // changes. Adding `perPage` / `updateSearchParams` would re-fire on every page-size change
+    // and reset the page back to 1 unexpectedly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchString]);
 

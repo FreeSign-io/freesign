@@ -79,9 +79,7 @@ export const DocumentUploadButtonLegacy = ({
     if (remaining.documents === 0) {
       return msg`You have reached your document limit.`;
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remaining.documents, user.emailVerified, team, type]);
+  }, [remaining.documents, user.emailVerified, team, type, organisation.subscription]);
 
   const onFileDrop = async (file: File) => {
     try {

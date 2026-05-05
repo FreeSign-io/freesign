@@ -121,6 +121,8 @@ export const TeamMemberUpdateDialog = ({
         variant: 'destructive',
       });
     }
+    // Sync-from-prop on open: only re-runs when `open` flips. Lingui `_`/`msg` deps are
+    // intentionally omitted to avoid re-firing the toast on locale change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, currentUserTeamRole, memberTeamRole, form, toast]);
 

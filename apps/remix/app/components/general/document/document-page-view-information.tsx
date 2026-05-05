@@ -46,6 +46,10 @@ export const DocumentPageViewInformation = ({
         value: mapSecondaryIdToDocumentId(envelope.secondaryId),
       },
     ];
+    // TODO(audit): consider adding `_` / `i18n` to deps so the formatted strings update on
+    // locale change. Leaving as-is to preserve current behavior - `isMounted` is the existing
+    // coarse trigger, and forcing re-eval on every `_`/`i18n` identity change could affect
+    // perceived perf in dense tables.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted, envelope, userId]);
 

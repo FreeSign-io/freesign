@@ -143,6 +143,8 @@ export const EnableAuthenticatorAppDialog = ({ onSuccess }: EnableAuthenticatorA
       setRecoveryCodes(null);
     }
 
+    // Sync-from-prop on open: only re-runs when `isOpen` flips. Adding `enable2FAForm` /
+    // `recoveryCodes` would either reset the form mid-edit or loop after `setRecoveryCodes(null)`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 

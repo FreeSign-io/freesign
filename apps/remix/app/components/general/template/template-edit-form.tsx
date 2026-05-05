@@ -304,6 +304,8 @@ export const TemplateEditForm = ({
   useEffect(() => {
     void refetchTemplate();
 
+    // Step-driven refetch: intentionally only re-runs when the wizard step changes. tRPC's
+    // `refetchTemplate` is a stable reference but ESLint can't verify that across versions.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 

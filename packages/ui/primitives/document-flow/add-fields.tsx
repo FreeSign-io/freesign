@@ -196,21 +196,26 @@ export const AddFieldsFormPartial = ({
         return true;
       });
 
+  // Stable inline helper: `filterFieldsWithEmptyValues` is re-created every render, so adding it
+  // to the dep array would invalidate the memo every render and defeat the purpose. The function
+  // is pure over its arguments, so omitting it is safe.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const emptyCheckboxFields = useMemo(
     () => filterFieldsWithEmptyValues(localFields, FieldType.CHECKBOX),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [localFields],
   );
 
+  // Stable inline helper: same reasoning as `emptyCheckboxFields` above.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const emptyRadioFields = useMemo(
     () => filterFieldsWithEmptyValues(localFields, FieldType.RADIO),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [localFields],
   );
 
+  // Stable inline helper: same reasoning as `emptyCheckboxFields` above.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const emptySelectFields = useMemo(
     () => filterFieldsWithEmptyValues(localFields, FieldType.DROPDOWN),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [localFields],
   );
 

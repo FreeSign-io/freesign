@@ -70,9 +70,7 @@ export const EnvelopeUploadButton = ({ className, type, folderId }: EnvelopeUplo
     if (!user.emailVerified) {
       return msg`Verify your email to upload documents.`;
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remaining.documents, user.emailVerified, team]);
+  }, [remaining.documents, user.emailVerified, team, organisation.subscription]);
 
   const onFileDrop = async (files: File[]) => {
     try {

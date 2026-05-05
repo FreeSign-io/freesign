@@ -91,6 +91,8 @@ export const DocumentSigningAuth2FA = ({
     setIs2FASetupSuccessful(false);
     setFormErrorCode(null);
 
+    // Sync-from-prop on open: only re-runs when `open` flips so we reset the 2FA token field
+    // exactly when the dialog (re-)opens. Adding `form` would re-reset on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 

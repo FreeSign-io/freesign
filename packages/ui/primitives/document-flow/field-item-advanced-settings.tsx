@@ -186,6 +186,9 @@ export const FieldAdvancedSettings = forwardRef<HTMLDivElement, FieldAdvancedSet
           ...parsedFieldMeta,
         });
       }
+      // Sync-from-prop: only re-runs when the field's persisted meta changes. `defaultState` is
+      // recomputed each render but the whole point here is to overwrite local state with the
+      // server-side parsed meta - including it in deps would loop.
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fieldMeta]);
 

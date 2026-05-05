@@ -219,6 +219,9 @@ export const ManagePublicTemplateDialog = ({
 
     setCurrentStep(step);
 
+    // Sync-from-prop: intentionally only re-runs when the dialog (re-)opens or its initial inputs
+    // change. Including `selectedTemplateId`, `directTemplates`, or `form` would loop or overwrite
+    // user edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialTemplateId, initialStep, open, isOpen]);
 

@@ -186,6 +186,9 @@ export const EmbedSignDocumentV2ClientPage = ({
     if (hasFinishedInit) {
       onDocumentReady();
     }
+    // Stable callback by contract: `onDocumentReady` is a parent-supplied notifier we want to
+    // invoke exactly once when init finishes. Adding it as a dep would re-fire whenever the
+    // parent re-renders with a fresh closure.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasFinishedInit]);
 
