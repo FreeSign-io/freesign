@@ -28,7 +28,10 @@ npm run build:server
 # Copy over the entry point for the server.
 cp server/main.js build/server/main.js
 
-# Copy over all web.js translations
+# Copy over all web.js translations into the esbuild output tree. The bundled
+# server reads them via `import(new URL('../packages/lib/translations/...',
+# import.meta.url))`, which resolves to build/server/hono/packages/lib/translations/.
+mkdir -p build/server/hono/packages/lib
 cp -r ../../packages/lib/translations build/server/hono/packages/lib/translations
 
 # Time taken

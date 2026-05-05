@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # FreeSign deploy script.
 # Run on the freesign server (Ubuntu, Node 22, Caddy, postgres in docker).
-# Pulls latest source, builds the Remix app + Rollup server bundle, restarts
+# Pulls latest source, builds the Remix app + esbuild server bundle, restarts
 # the freesign systemd service.
 #
 # Idempotent: re-runs cheaply when there are no source changes (npm ci is the
@@ -114,17 +114,18 @@ wait $BUILD_PID    || die "react-router build failed"
 
 cd "$REPO_DIR/apps/remix"
 
-log "Build server (rollup)"
+log "Build server (esbuild)"
 NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
-  npx cross-env NODE_ENV=production rollup -c rollup.config.mjs
+  npx cross-env NODE_ENV=production node esbuild.config.mjs
 
 # Copy entrypoint into build dir (matches what the official build.sh does).
 cp -f server/main.js build/server/main.js
 
-# Rollup's TS plugin compiles imports but doesn't copy already-compiled .mjs
-# Lingui catalogs into the bundle. The Hono runtime imports them via dynamic
-# `import('packages/lib/translations/<locale>/web.mjs')`, so we mirror them
-# into the rolled-up output directory.
+# esbuild bundles the TS source into a single file at
+# build/server/hono/server/router.js. The Hono runtime imports compiled
+# Lingui catalogs via `import(new URL('../packages/lib/translations/...',
+# import.meta.url))`, which resolves relative to the bundle. Mirror the
+# .mjs catalogs into that location.
 mkdir -p build/server/hono/packages/lib/translations
 cp -r "$REPO_DIR"/packages/lib/translations/* build/server/hono/packages/lib/translations/
 
