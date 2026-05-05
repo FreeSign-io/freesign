@@ -3,8 +3,10 @@
 name: 'Pull translations'
 
 on:
-  schedule:
-    - cron: '0 */2 * * *' # Every two hours.
+  # Disabled until CROWDIN_PROJECT_ID and CROWDIN_PERSONAL_TOKEN repo secrets are configured.
+  # Re-enable by uncommenting the schedule trigger below.
+  # schedule:
+  #   - cron: '0 */2 * * *' # Every two hours.
   workflow_dispatch:
   workflow_call:
 
