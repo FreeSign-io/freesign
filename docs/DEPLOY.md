@@ -72,7 +72,9 @@ command via `command="sudo /opt/freesign/app/deploy.sh"` in
 
 ## Resource requirements
 
-- Minimum: **2 GB RAM + 4 GB swap** (build will hit swap during rollup)
+- Minimum: **2 GB RAM + 4 GB swap** (esbuild's server bundle is much
+  lighter than the previous rollup pass, but `react-router build` and
+  `npm install` can still spike on small VPS hosts)
 - Recommended: **4 GB RAM** (no swap pressure)
 - Disk: ~20 GB (node_modules + DB volume + Docker images)
 
