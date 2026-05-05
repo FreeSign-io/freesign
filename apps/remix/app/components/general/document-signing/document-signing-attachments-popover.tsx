@@ -41,13 +41,13 @@ export const DocumentSigningAttachmentsPopover = ({
         )}
       </PopoverTrigger>
 
-      <PopoverContent className="w-96" align="start">
+      <PopoverContent className="w-[calc(100vw-2rem)] max-w-96 sm:w-96" align="start">
         <div className="space-y-4">
           <div>
             <h4 className="font-medium">
               <Trans>Attachments</Trans>
             </h4>
-            <p className="text-muted-foreground mt-1 text-sm">
+            <p className="mt-1 text-sm text-muted-foreground">
               <Trans>Documents and resources related to this envelope.</Trans>
             </p>
           </div>
@@ -60,14 +60,14 @@ export const DocumentSigningAttachmentsPopover = ({
                 title={attachment.data}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-border hover:bg-muted/50 group flex items-center justify-between rounded-md border px-3 py-2.5 transition duration-200"
+                className="group flex items-center justify-between rounded-md border border-border px-3 py-2.5 transition duration-200 hover:bg-muted/50"
               >
                 <div className="flex flex-1 items-center gap-2.5">
-                  <div className="bg-muted rounded p-2">
+                  <div className="rounded bg-muted p-2">
                     <PaperclipIcon className="h-4 w-4" />
                   </div>
 
-                  <span className="text-muted-foreground hover:text-foreground block truncate text-sm underline">
+                  <span className="block truncate text-sm text-muted-foreground underline hover:text-foreground">
                     {attachment.label}
                   </span>
                 </div>

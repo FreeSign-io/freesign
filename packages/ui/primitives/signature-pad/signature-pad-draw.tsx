@@ -1,5 +1,5 @@
 import type { MouseEvent, PointerEvent, RefObject, TouchEvent } from 'react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Trans } from '@lingui/react/macro';
 import { Undo2 } from 'lucide-react';
@@ -247,12 +247,36 @@ export const SignaturePadDraw = ({
     onChange?.($el.current.toDataURL());
   };
 
-  unsafe_useEffectOnce(() => {
-    if ($el.current) {
-      $el.current.width = $el.current.clientWidth * SIGNATURE_CANVAS_DPI;
-      $el.current.height = $el.current.clientHeight * SIGNATURE_CANVAS_DPI;
-    }
+  useEffect(() => {
+    if (!$el.current) return;
 
+    const canvas = $el.current;
+
+    const resize = () => {
+      const nextWidth = canvas.clientWidth * SIGNATURE_CANVAS_DPI;
+      const nextHeight = canvas.clientHeight * SIGNATURE_CANVAS_DPI;
+
+      if (canvas.width === nextWidth && canvas.height === nextHeight) return;
+
+      const snapshot = $imageData.current;
+
+      canvas.width = nextWidth;
+      canvas.height = nextHeight;
+
+      // Resizing clears the canvas; restore prior strokes if any.
+      if (snapshot) {
+        canvas.getContext('2d')?.putImageData(snapshot, 0, 0);
+      }
+    };
+
+    resize();
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
+
+  unsafe_useEffectOnce(() => {
     if ($el.current && value) {
       const ctx = $el.current.getContext('2d');
 

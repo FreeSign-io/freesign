@@ -16,9 +16,14 @@ import type {
   TSignFieldWithTokenMutationSchema,
 } from '@documenso/trpc/server/field-router/schema';
 import { Button } from '@documenso/ui/primitives/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@documenso/ui/primitives/dialog';
 import { Input } from '@documenso/ui/primitives/input';
 import { Label } from '@documenso/ui/primitives/label';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+} from '@documenso/ui/primitives/responsive-dialog';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
 import { useRequiredDocumentSigningAuthContext } from './document-signing-auth-provider';
@@ -183,16 +188,16 @@ export const DocumentSigningNameField = ({
         </DocumentSigningFieldsInserted>
       )}
 
-      <Dialog open={showFullNameModal} onOpenChange={setShowFullNameModal}>
-        <DialogContent>
-          <DialogTitle>
+      <ResponsiveDialog open={showFullNameModal} onOpenChange={setShowFullNameModal}>
+        <ResponsiveDialogContent>
+          <ResponsiveDialogTitle>
             <Trans>
               Sign as
               <div>
                 {recipient.name} <div className="text-foreground">({recipient.email})</div>
               </div>
             </Trans>
-          </DialogTitle>
+          </ResponsiveDialogTitle>
 
           <div>
             <Label htmlFor="signature">
@@ -207,7 +212,7 @@ export const DocumentSigningNameField = ({
             />
           </div>
 
-          <DialogFooter>
+          <ResponsiveDialogFooter>
             <div className="flex w-full flex-1 flex-nowrap gap-4">
               <Button
                 type="button"
@@ -230,9 +235,9 @@ export const DocumentSigningNameField = ({
                 <Trans>Sign</Trans>
               </Button>
             </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </DocumentSigningFieldContainer>
   );
 };

@@ -18,8 +18,13 @@ import type {
 } from '@documenso/trpc/server/field-router/schema';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@documenso/ui/primitives/dialog';
 import { Input } from '@documenso/ui/primitives/input';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+} from '@documenso/ui/primitives/responsive-dialog';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
 import { useRequiredDocumentSigningAuthContext } from './document-signing-auth-provider';
@@ -258,11 +263,11 @@ export const DocumentSigningNumberField = ({
         </DocumentSigningFieldsInserted>
       )}
 
-      <Dialog open={showNumberModal} onOpenChange={setShowNumberModal}>
-        <DialogContent>
-          <DialogTitle>
+      <ResponsiveDialog open={showNumberModal} onOpenChange={setShowNumberModal}>
+        <ResponsiveDialogContent>
+          <ResponsiveDialogTitle>
             {parsedFieldMeta?.label ? parsedFieldMeta?.label : <Trans>Number</Trans>}
-          </DialogTitle>
+          </ResponsiveDialogTitle>
 
           <div>
             <Input
@@ -307,7 +312,7 @@ export const DocumentSigningNumberField = ({
             </div>
           )}
 
-          <DialogFooter>
+          <ResponsiveDialogFooter>
             <div className="flex w-full flex-1 flex-nowrap gap-4">
               <Button
                 type="button"
@@ -330,9 +335,9 @@ export const DocumentSigningNumberField = ({
                 <Trans>Save</Trans>
               </Button>
             </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </DocumentSigningFieldContainer>
   );
 };
