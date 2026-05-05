@@ -80,7 +80,9 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 }
 
 export default function DocumentsLogsPage({ loaderData }: Route.ComponentProps) {
-  const { document, recipients, documentRootPath, userId } = loaderData;
+  const { document, recipients, documentRootPath, userId } = loaderData as Awaited<
+    ReturnType<typeof loader>
+  >;
 
   const { _, i18n } = useLingui();
 

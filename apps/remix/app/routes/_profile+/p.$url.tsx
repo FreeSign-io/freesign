@@ -54,7 +54,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function PublicProfilePage({ loaderData }: Route.ComponentProps) {
-  const { publicProfile } = loaderData;
+  const { publicProfile } = loaderData as Awaited<ReturnType<typeof loader>>;
 
   const { profile, templates } = publicProfile;
 

@@ -55,7 +55,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function AdminDocumentDetailsPage({ loaderData }: Route.ComponentProps) {
-  const { envelope } = loaderData;
+  const { envelope } = loaderData as Awaited<ReturnType<typeof loader>>;
 
   const { _, i18n } = useLingui();
   const { toast } = useToast();

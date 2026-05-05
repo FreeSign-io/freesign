@@ -99,7 +99,8 @@ export async function loader({ request }: Route.LoaderArgs) {
  * Update: Maybe <Trans> tags work now after RR7 migration.
  */
 export default function AuditLog({ loaderData }: Route.ComponentProps) {
-  const { auditLogs, document, documentLanguage, hidePoweredBy, messages } = loaderData;
+  const { auditLogs, document, documentLanguage, hidePoweredBy, messages } =
+    loaderData as Awaited<ReturnType<typeof loader>>;
 
   const { i18n, _ } = useLingui();
 

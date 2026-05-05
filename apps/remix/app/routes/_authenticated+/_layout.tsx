@@ -1,6 +1,6 @@
 import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Link, Outlet, redirect } from 'react-router';
+import { Link, Outlet, redirect, type UIMatch } from 'react-router';
 
 import { getOptionalSession } from '@documenso/auth/server/lib/utils/get-session';
 import { OrganisationProvider } from '@documenso/lib/client-only/providers/organisation';
@@ -74,7 +74,7 @@ export default function Layout({ loaderData, params, matches }: Route.ComponentP
 
   // Hide the header for editor routes.
   const hideHeader = matches.some(
-    (match) =>
+    (match: UIMatch | undefined) =>
       match?.id === 'routes/_authenticated+/t.$teamUrl+/documents.$id.edit' ||
       match?.id === 'routes/_authenticated+/t.$teamUrl+/templates.$id.edit',
   );
