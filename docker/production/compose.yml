@@ -1,4 +1,4 @@
-name: documenso-production
+name: freesign-production
 
 services:
   database:
@@ -15,8 +15,8 @@ services:
     volumes:
       - database:/var/lib/postgresql/data
 
-  documenso:
-    image: documenso/documenso:latest
+  freesign:
+    image: ghcr.io/freesign-io/freesign:latest
     depends_on:
       database:
         condition: service_healthy

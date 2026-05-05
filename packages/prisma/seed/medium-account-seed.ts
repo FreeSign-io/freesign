@@ -5,7 +5,7 @@ import { DocumentStatus } from '../client';
 import { seedBlankDocument } from './documents';
 import { seedUser } from './users';
 
-const MEDIUM_ACCOUNT_EMAIL = 'medium-account@documenso.com';
+const MEDIUM_ACCOUNT_EMAIL = 'medium-account@freesign.com';
 const DOCUMENT_COUNT = 1000;
 
 const STATUSES = [DocumentStatus.DRAFT, DocumentStatus.PENDING, DocumentStatus.COMPLETED];

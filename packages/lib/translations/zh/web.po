@@ -991,8 +991,8 @@ msgstr "{0} 在 Documenso 上发起了一个使用您邮箱的请求"
 
 #: apps/remix/app/components/dialogs/webhook-create-dialog.tsx
 #: apps/remix/app/components/dialogs/webhook-edit-dialog.tsx
-msgid "A secret that will be sent to your URL so you can verify that the request has been sent by Documenso."
-msgstr "一个密钥将被发送到你的 URL，以便你验证该请求确实由 Documenso 发出。"
+msgid "A secret that will be sent to your URL so you can verify that the request has been sent by FreeSign."
+msgstr ""
 
 #: apps/remix/app/routes/_unauthenticated+/articles.signature-disclosure.tsx
 msgid "A stable internet connection"
@@ -2312,8 +2312,8 @@ msgid "By enabling 2FA, you will be required to enter a code from your authentic
 msgstr "启用 2FA 后，每次使用邮箱和密码登录时，您都需要输入来自验证器应用的验证码。"
 
 #: apps/remix/app/routes/_unauthenticated+/articles.signature-disclosure.tsx
-msgid "By proceeding to use the electronic signature service provided by Documenso, you affirm that you have read and understood this disclosure. You agree to all terms and conditions related to the use of electronic signatures and electronic transactions as outlined herein."
-msgstr "继续使用 Documenso 提供的电子签署服务，即表示你已阅读并理解本披露内容。你同意本文件中关于使用电子签名及电子交易的所有条款和条件。"
+msgid "By proceeding to use the electronic signature service provided by FreeSign, you affirm that you have read and understood this disclosure. You agree to all terms and conditions related to the use of electronic signatures and electronic transactions as outlined herein."
+msgstr ""
 
 #: apps/remix/app/components/general/document-signing/document-signing-disclosure.tsx
 msgid "By proceeding with your electronic signature, you acknowledge and consent that it will be used to sign the given document and holds the same legal validity as a handwritten signature. By completing the electronic signing process, you affirm your understanding and acceptance of these conditions."
@@ -3832,14 +3832,6 @@ msgstr "已生成 DKIM 记录。请添加 DNS 记录以验证您的域名。"
 msgid "DNS Records"
 msgstr "DNS 记录"
 
-#: apps/remix/app/components/general/admin-license-card.tsx
-msgid "Documenso License"
-msgstr "Documenso 许可证"
-
-#: apps/remix/app/components/dialogs/account-delete-dialog.tsx
-msgid "Documenso will delete <0>all of your documents</0>, along with all of your completed documents, signatures, and all other resources belonging to your Account."
-msgstr "Documenso 将删除<0>你所有的文档</0>，包括所有已完成的文档、签名以及属于你账号的其他所有资源。"
-
 #: apps/remix/app/components/general/settings-nav-desktop.tsx
 #: apps/remix/app/components/general/template/template-page-view-documents-table.tsx
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl.settings._layout.tsx
@@ -4315,6 +4307,7 @@ msgstr "不要转移（删除所有文档）"
 #: apps/remix/app/components/tables/documents-table-action-dropdown.tsx
 #: apps/remix/app/components/tables/inbox-table.tsx
 #: apps/remix/app/components/tables/organisation-billing-invoices-table.tsx
+#: apps/remix/app/components/tables/templates-table-action-dropdown.tsx
 #: apps/remix/app/routes/_recipient+/sign.$token+/complete.tsx
 #: packages/email/template-components/template-document-completed.tsx
 msgid "Download"
@@ -4922,6 +4915,10 @@ msgstr "信封已分发"
 
 #: apps/remix/app/routes/_internal+/[__htmltopdf]+/audit-log.tsx
 #: packages/lib/server-only/pdf/render-audit-logs.ts
+#: packages/lib/server-only/pdf/render-audit-logs.ts
+#: packages/lib/server-only/pdf/render-audit-logs.ts
+#: packages/lib/server-only/pdf/render-certificate.ts
+#: packages/lib/server-only/pdf/render-certificate.ts
 msgid "Envelope ID"
 msgstr "信封 ID"
 
@@ -5443,6 +5440,14 @@ msgstr "自由签名"
 msgid "Free Signature Settings"
 msgstr "免费签名设置"
 
+#: apps/remix/app/components/general/admin-license-card.tsx
+msgid "FreeSign License"
+msgstr ""
+
+#: apps/remix/app/components/dialogs/account-delete-dialog.tsx
+msgid "FreeSign will delete <0>all of your documents</0>, along with all of your completed documents, signatures, and all other resources belonging to your Account."
+msgstr ""
+
 #: packages/lib/constants/i18n.ts
 msgid "French"
 msgstr "法语"
@@ -5951,8 +5956,8 @@ msgid "Invalid License Key"
 msgstr "许可证密钥无效"
 
 #: apps/remix/app/components/general/admin-license-status-banner.tsx
-msgid "Invalid License Type - Your Documenso instance is using features that are not part of your license."
-msgstr "许可证类型无效 - 您的 Documenso 实例正在使用不在当前许可证范围内的功能。"
+msgid "Invalid License Type - Your FreeSign instance is using features that are not part of your license."
+msgstr ""
 
 #: apps/remix/app/routes/_unauthenticated+/team.verify.email.$token.tsx
 msgid "Invalid link"
@@ -6635,8 +6640,8 @@ msgid "Min"
 msgstr "最小值"
 
 #: apps/remix/app/components/general/admin-license-status-banner.tsx
-msgid "Missing License - Your Documenso instance is using features that require a license."
-msgstr "缺少许可证 - 您的 Documenso 实例正在使用需要许可证的功能。"
+msgid "Missing License - Your FreeSign instance is using features that require a license."
+msgstr ""
 
 #: apps/remix/app/components/general/envelope-editor/envelope-editor-fields-page.tsx
 msgid "Missing Recipients"
@@ -7678,6 +7683,10 @@ msgstr "请确认您的邮箱"
 msgid "Please confirm your email address"
 msgstr "请确认您的邮箱地址"
 
+#: apps/remix/app/components/embed/embed-paywall.tsx
+msgid "Please contact <0>support</0> if you have any questions."
+msgstr ""
+
 #: apps/remix/app/components/dialogs/envelope-delete-dialog.tsx
 msgid "Please contact support if you would like to revert this action."
 msgstr "如需撤销此操作，请联系支持。"
@@ -7694,8 +7703,6 @@ msgstr "请输入一个有意义的令牌名称，以便日后识别。"
 msgid "Please enter a number"
 msgstr "请输入一个数字"
 
-#: apps/remix/app/components/forms/profile.tsx
-#: apps/remix/app/components/forms/signup.tsx
 #: apps/remix/app/components/general/claim-account.tsx
 msgid "Please enter a valid name."
 msgstr "请输入有效姓名。"
@@ -8016,8 +8023,8 @@ msgid "Read Only"
 msgstr "只读"
 
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl.support.tsx
-msgid "Read our documentation to get started with Documenso."
-msgstr "阅读我们的文档，开始使用 Documenso。"
+msgid "Read our documentation to get started with FreeSign."
+msgstr ""
 
 #: apps/remix/app/routes/_authenticated+/admin+/documents.$id.tsx
 msgid "Read Status"
@@ -8597,13 +8604,13 @@ msgstr "返回"
 msgid "Return Home"
 msgstr "返回主页"
 
-#: apps/remix/app/routes/_unauthenticated+/o.$orgUrl.signin.tsx
-msgid "Return to Documenso sign in page here"
-msgstr "在此返回 Documenso 登录页面"
-
 #: apps/remix/app/components/general/envelope-editor/envelope-editor.tsx
 msgid "Return to documents"
 msgstr "返回文档列表"
+
+#: apps/remix/app/routes/_unauthenticated+/o.$orgUrl.signin.tsx
+msgid "Return to FreeSign sign in page here"
+msgstr ""
 
 #: apps/remix/app/routes/_unauthenticated+/organisation.decline.$token.tsx
 msgid "Return to Home"
@@ -10195,8 +10202,8 @@ msgid "Thank you for completing the signing process."
 msgstr "感谢您完成签署流程。"
 
 #: apps/remix/app/routes/_unauthenticated+/articles.signature-disclosure.tsx
-msgid "Thank you for using Documenso to perform your electronic document signing. The purpose of this disclosure is to inform you about the process, legality, and your rights regarding the use of electronic signatures on our platform. By opting to use an electronic signature, you are agreeing to the terms and conditions outlined below."
-msgstr "感谢你使用 Documenso 进行电子文档签署。本披露旨在向你说明在我们平台上使用电子签名的流程、合法性以及你的权利。选择使用电子签名，即表示你同意以下条款和条件。"
+msgid "Thank you for using FreeSign to perform your electronic document signing. The purpose of this disclosure is to inform you about the process, legality, and your rights regarding the use of electronic signatures on our platform. By opting to use an electronic signature, you are agreeing to the terms and conditions outlined below."
+msgstr ""
 
 #: packages/email/template-components/template-forgot-password.tsx
 msgid "That's okay, it happens! Click the button below to reset your password."
@@ -10567,8 +10574,8 @@ msgstr "收件人在签署文档时允许使用的签名类型。"
 
 #: apps/remix/app/components/dialogs/webhook-create-dialog.tsx
 #: apps/remix/app/components/dialogs/webhook-edit-dialog.tsx
-msgid "The URL for Documenso to send webhook events to."
-msgstr "Documenso 向其发送 Webhook 事件的 URL。"
+msgid "The URL for FreeSign to send webhook events to."
+msgstr ""
 
 #: apps/remix/app/routes/_authenticated+/admin+/users.$id.tsx
 msgid "The user you are looking for may have been removed, renamed or may have never existed."
@@ -10714,8 +10721,8 @@ msgid "This document has been signed by all recipients"
 msgstr "该文档已由所有收件人签署"
 
 #: apps/remix/app/components/general/document/document-certificate-qr-view.tsx
-msgid "This document is available in your Documenso account. You can view more details, recipients, and audit logs there."
-msgstr "此文档在您的 Documenso 账户中可用。您可以在那里查看更多详情、收件人和审计日志。"
+msgid "This document is available in your FreeSign account. You can view more details, recipients, and audit logs there."
+msgstr ""
 
 #: apps/remix/app/routes/_authenticated+/t.$teamUrl+/documents.$id._index.tsx
 msgid "This document is currently a draft and has not been sent"
@@ -10734,8 +10741,8 @@ msgid "This document was created using a direct link."
 msgstr "此文档是通过直接链接创建的。"
 
 #: packages/email/template-components/template-footer.tsx
-msgid "This document was sent using <0>Documenso</0>."
-msgstr "此文档是使用 <0>Documenso</0> 发送的。"
+msgid "This document was sent using <0>FreeSign</0>."
+msgstr ""
 
 #: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
 msgid "This document will be duplicated."
@@ -10776,6 +10783,10 @@ msgstr "当前无法分发此信封。请重试。"
 #: apps/remix/app/components/dialogs/envelope-redistribute-dialog.tsx
 msgid "This envelope could not be resent at this time. Please try again."
 msgstr "当前无法重新发送此信封。请重试。"
+
+#: apps/remix/app/components/embed/embed-paywall.tsx
+msgid "This feature is not available on your current plan"
+msgstr ""
 
 #: packages/ui/primitives/template-flow/add-template-placeholder-recipients.tsx
 msgid "This field cannot be modified or deleted. When you share this template's direct link or add it to your public profile, anyone who accesses it can input their name and email, and fill in the fields assigned to them."
@@ -11737,10 +11748,6 @@ msgstr "用户资料来了！"
 msgid "User settings"
 msgstr "用户设置"
 
-#: apps/remix/app/components/forms/signup.tsx
-msgid "User with this email already exists. Please use a different email address."
-msgstr "使用该邮箱的用户已存在。请使用其他邮箱地址。"
-
 #: apps/remix/app/components/tables/organisation-insights-table.tsx
 #: apps/remix/app/routes/_authenticated+/admin+/_layout.tsx
 msgid "Users"
@@ -12025,8 +12032,8 @@ msgstr "正在等待你的顺序"
 
 #: apps/remix/app/routes/_recipient+/sign.$token+/_index.tsx
 #: apps/remix/app/routes/_recipient+/sign.$token+/_index.tsx
-msgid "Want to send slick signing links like this one? <0>Check out Documenso</0>."
-msgstr "想要发送像这样顺畅好用的签署链接吗？<0>来了解一下 Documenso</0>。"
+msgid "Want to send slick signing links like this one? <0>Check out FreeSign</0>."
+msgstr ""
 
 #: apps/remix/app/routes/_profile+/_layout.tsx
 msgid "Want your own public profile?"
@@ -12287,6 +12294,10 @@ msgid "We were unable to copy your recovery code to your clipboard. Please try a
 msgstr "无法将恢复代码复制到剪贴板。请重试。"
 
 #: apps/remix/app/components/forms/signup.tsx
+msgid "We were unable to create your account. If you already have an account, try signing in instead."
+msgstr ""
+
+#: apps/remix/app/components/forms/signup.tsx
 msgid "We were unable to create your account. Please review the information you provided and try again."
 msgstr "我们未能创建您的账户。请检查您提供的信息后重试。"
 
@@ -12459,8 +12470,8 @@ msgid "Welcome to {organisationName}"
 msgstr "欢迎加入 {organisationName}"
 
 #: packages/email/template-components/template-confirmation-email.tsx
-msgid "Welcome to Documenso!"
-msgstr "欢迎来到 Documenso！"
+msgid "Welcome to FreeSign!"
+msgstr ""
 
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.sso.tsx
 msgid "Well-known URL is required"
@@ -12498,8 +12509,8 @@ msgid "Whether to enable the SSO portal for your organisation"
 msgstr "是否为您的组织启用 SSO 门户"
 
 #: apps/remix/app/routes/_profile+/p.$url.tsx
-msgid "While waiting for them to do so you can create your own Documenso account and get started with document signing right away."
-msgstr "在等待对方操作期间，你可以创建自己的 Documenso 账号，立即开始使用文档签署功能。"
+msgid "While waiting for them to do so you can create your own FreeSign account and get started with document signing right away."
+msgstr ""
 
 #: apps/remix/app/components/dialogs/organisation-create-dialog.tsx
 msgid "Whitelabeling, unlimited members and more"
@@ -13462,12 +13473,12 @@ msgid "Your Email"
 msgstr "您的邮箱"
 
 #: apps/remix/app/routes/_unauthenticated+/verify-email.$token.tsx
-msgid "Your email has already been confirmed. You can now use all features of Documenso."
-msgstr "您的邮箱已确认。您现在可以使用 Documenso 的全部功能。"
+msgid "Your email has already been confirmed. You can now use all features of FreeSign."
+msgstr ""
 
 #: apps/remix/app/routes/_unauthenticated+/verify-email.$token.tsx
-msgid "Your email has been successfully confirmed! You can now use all features of Documenso."
-msgstr "你的邮箱已成功确认！你现在可以使用 Documenso 的所有功能。"
+msgid "Your email has been successfully confirmed! You can now use all features of FreeSign."
+msgstr ""
 
 #. placeholder {0}: teamEmail.team.name
 #. placeholder {1}: teamEmail.team.url
@@ -13535,8 +13546,8 @@ msgid "Your plan does not support inviting members. Please upgrade or your plan 
 msgstr "您的套餐不支持邀请成员。请升级您的套餐或通过 <0>{SUPPORT_EMAIL}</0> 联系销售了解更多选项。"
 
 #: apps/remix/app/components/general/organisations/organisation-billing-banner.tsx
-msgid "Your plan is no longer valid. Please subscribe to a new plan to continue using Documenso."
-msgstr "您的套餐已无效。请订阅新套餐以继续使用 Documenso。"
+msgid "Your plan is no longer valid. Please subscribe to a new plan to continue using FreeSign."
+msgstr ""
 
 #: apps/remix/app/components/forms/profile.tsx
 msgid "Your profile has been updated successfully."
@@ -13636,4 +13647,3 @@ msgstr "您的验证码："
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.sso.tsx
 msgid "your-domain.com another-domain.com"
 msgstr "your-domain.com another-domain.com"
-

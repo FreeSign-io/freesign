@@ -1,6 +1,6 @@
 ---
 title: Kubernetes
-description: Deploy Documenso on Kubernetes for production environments requiring high availability, auto-scaling, and enterprise-grade infrastructure.
+description: Deploy FreeSign on Kubernetes for production environments requiring high availability, auto-scaling, and enterprise-grade infrastructure.
 ---
 
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
@@ -26,7 +26,7 @@ kubectl get nodes
 
 ## Architecture Overview
 
-A typical Documenso Kubernetes deployment consists of:
+A typical FreeSign Kubernetes deployment consists of:
 
 ```mermaid
 flowchart TD
@@ -41,16 +41,16 @@ flowchart TD
 
 ## Namespace Setup
 
-Create a dedicated namespace for Documenso:
+Create a dedicated namespace for FreeSign:
 
 ```yaml
 # namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: documenso
+  name: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
 ```
 
 Apply the namespace:
@@ -83,17 +83,17 @@ openssl rand -base64 32
 apiVersion: v1
 kind: Secret
 metadata:
-  name: documenso-secrets
-  namespace: documenso
+  name: freesign-secrets
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
 type: Opaque
 stringData:
   NEXTAUTH_SECRET: 'your-generated-secret-here'
   NEXT_PRIVATE_ENCRYPTION_KEY: 'your-encryption-key-min-32-chars'
   NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY: 'your-secondary-key-min-32-chars'
-  NEXT_PRIVATE_DATABASE_URL: 'postgresql://user:password@postgres-host:5432/documenso'
-  NEXT_PRIVATE_DIRECT_DATABASE_URL: 'postgresql://user:password@postgres-host:5432/documenso'
+  NEXT_PRIVATE_DATABASE_URL: 'postgresql://user:password@postgres-host:5432/freesign'
+  NEXT_PRIVATE_DIRECT_DATABASE_URL: 'postgresql://user:password@postgres-host:5432/freesign'
   NEXT_PRIVATE_SMTP_USERNAME: 'your-smtp-username'
   NEXT_PRIVATE_SMTP_PASSWORD: 'your-smtp-password'
   NEXT_PRIVATE_SIGNING_PASSPHRASE: 'your-certificate-passphrase'
@@ -119,16 +119,16 @@ Store non-sensitive configuration in a ConfigMap:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: documenso-config
-  namespace: documenso
+  name: freesign-config
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
 data:
   NEXT_PUBLIC_WEBAPP_URL: 'https://sign.example.com'
   NEXT_PRIVATE_SMTP_TRANSPORT: 'smtp-auth'
   NEXT_PRIVATE_SMTP_HOST: 'smtp.example.com'
   NEXT_PRIVATE_SMTP_PORT: '587'
-  NEXT_PRIVATE_SMTP_FROM_NAME: 'Documenso'
+  NEXT_PRIVATE_SMTP_FROM_NAME: 'FreeSign'
   NEXT_PRIVATE_SMTP_FROM_ADDRESS: 'noreply@example.com'
   NEXT_PRIVATE_INTERNAL_WEBAPP_URL: 'http://localhost:3000'
   NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH: '/opt/documenso/cert.p12'
@@ -143,23 +143,23 @@ kubectl apply -f configmap.yaml
 
 ## Deployment
 
-Create the Documenso Deployment:
+Create the FreeSign Deployment:
 
 ```yaml
 # deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
     app.kubernetes.io/component: web
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: documenso
+      app.kubernetes.io/name: freesign
       app.kubernetes.io/component: web
   strategy:
     type: RollingUpdate
@@ -169,7 +169,7 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: documenso
+        app.kubernetes.io/name: freesign
         app.kubernetes.io/component: web
     spec:
       securityContext:
@@ -177,8 +177,8 @@ spec:
         runAsGroup: 1001
         fsGroup: 1001
       containers:
-        - name: documenso
-          image: documenso/documenso:latest
+        - name: freesign
+          image: freesign-io/freesign:latest
           imagePullPolicy: Always
           ports:
             - name: http
@@ -186,9 +186,9 @@ spec:
               protocol: TCP
           envFrom:
             - configMapRef:
-                name: documenso-config
+                name: freesign-config
             - secretRef:
-                name: documenso-secrets
+                name: freesign-secrets
           resources:
             requests:
               cpu: 250m
@@ -228,14 +228,14 @@ spec:
       volumes:
         - name: signing-cert
           secret:
-            secretName: documenso-signing-cert
+            secretName: freesign-signing-cert
             items:
               - key: cert.p12
                 path: cert.p12
 ```
 
 <Callout type="info">
-  Pin to a specific image tag (e.g., `documenso/documenso:1.5.0`) in production instead of `latest`
+  Pin to a specific image tag (e.g., `freesign-io/freesign:1.5.0`) in production instead of `latest`
   to ensure predictable deployments.
 </Callout>
 
@@ -244,8 +244,8 @@ spec:
 Create a secret for the signing certificate:
 
 ```bash
-kubectl create secret generic documenso-signing-cert \
-  --namespace documenso \
+kubectl create secret generic freesign-signing-cert \
+  --namespace freesign \
   --from-file=cert.p12=/path/to/your/cert.p12
 ```
 
@@ -264,10 +264,10 @@ Expose the Deployment with a Service:
 apiVersion: v1
 kind: Service
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
     app.kubernetes.io/component: web
 spec:
   type: ClusterIP
@@ -277,7 +277,7 @@ spec:
       targetPort: http
       protocol: TCP
   selector:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
     app.kubernetes.io/component: web
 ```
 
@@ -296,10 +296,10 @@ kubectl apply -f service.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: '50m'
     nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
@@ -310,7 +310,7 @@ spec:
   tls:
     - hosts:
         - sign.example.com
-      secretName: documenso-tls
+      secretName: freesign-tls
   rules:
     - host: sign.example.com
       http:
@@ -319,7 +319,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: documenso
+                name: freesign
                 port:
                   name: http
 ```
@@ -331,10 +331,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: 'true'
@@ -344,7 +344,7 @@ spec:
   tls:
     - hosts:
         - sign.example.com
-      secretName: documenso-tls
+      secretName: freesign-tls
   rules:
     - host: sign.example.com
       http:
@@ -353,7 +353,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: documenso
+                name: freesign
                 port:
                   name: http
 ```
@@ -389,7 +389,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
-  namespace: documenso
+  namespace: freesign
 spec:
   accessModes:
     - ReadWriteOnce
@@ -401,18 +401,18 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secrets
-  namespace: documenso
+  namespace: freesign
 type: Opaque
 stringData:
-  POSTGRES_USER: documenso
+  POSTGRES_USER: freesign
   POSTGRES_PASSWORD: your-secure-password
-  POSTGRES_DB: documenso
+  POSTGRES_DB: freesign
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: documenso
+  namespace: freesign
 spec:
   replicas: 1
   selector:
@@ -450,7 +450,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: documenso
+  namespace: freesign
 spec:
   type: ClusterIP
   ports:
@@ -465,16 +465,16 @@ spec:
   backups, and point-in-time recovery that managed services provide.
 </Callout>
 
-Update your Documenso secret to use the in-cluster database:
+Update your FreeSign secret to use the in-cluster database:
 
 ```yaml
-NEXT_PRIVATE_DATABASE_URL: 'postgresql://documenso:your-secure-password@postgres.documenso.svc.cluster.local:5432/documenso'
-NEXT_PRIVATE_DIRECT_DATABASE_URL: 'postgresql://documenso:your-secure-password@postgres.documenso.svc.cluster.local:5432/documenso'
+NEXT_PRIVATE_DATABASE_URL: 'postgresql://freesign:your-secure-password@postgres.freesign.svc.cluster.local:5432/freesign'
+NEXT_PRIVATE_DIRECT_DATABASE_URL: 'postgresql://freesign:your-secure-password@postgres.freesign.svc.cluster.local:5432/freesign'
 ```
 
 ## Persistent Storage
 
-Documenso stores documents in the database by default. For high-volume deployments, configure S3-compatible storage.
+FreeSign stores documents in the database by default. For high-volume deployments, configure S3-compatible storage.
 
 ### S3 Configuration
 
@@ -489,7 +489,7 @@ data:
 stringData:
   NEXT_PRIVATE_UPLOAD_ENDPOINT: 'https://s3.amazonaws.com'
   NEXT_PRIVATE_UPLOAD_REGION: 'us-east-1'
-  NEXT_PRIVATE_UPLOAD_BUCKET: 'your-documenso-bucket'
+  NEXT_PRIVATE_UPLOAD_BUCKET: 'your-freesign-bucket'
   NEXT_PRIVATE_UPLOAD_ACCESS_KEY_ID: 'your-access-key'
   NEXT_PRIVATE_UPLOAD_SECRET_ACCESS_KEY: 'your-secret-key'
 ```
@@ -500,22 +500,22 @@ See [Storage Configuration](/docs/self-hosting/configuration/storage) for detail
 
 ### Horizontal Pod Autoscaler (HPA)
 
-Scale Documenso based on CPU and memory utilization:
+Scale FreeSign based on CPU and memory utilization:
 
 ```yaml
 # hpa.yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: documenso
+    name: freesign
   minReplicas: 2
   maxReplicas: 10
   metrics:
@@ -565,15 +565,15 @@ Ensure availability during cluster maintenance:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
 spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: documenso
+      app.kubernetes.io/name: freesign
       app.kubernetes.io/component: web
 ```
 
@@ -591,10 +591,10 @@ kubectl apply -f pdb.yaml
     
     ```bash
     # Get pod status
-    kubectl get pods -n documenso
+    kubectl get pods -n freesign
     
     # Describe pod
-    kubectl describe pod <pod-name> -n documenso
+    kubectl describe pod <pod-name> -n freesign
     ```
     
     Common causes: 
@@ -606,7 +606,7 @@ kubectl apply -f pdb.yaml
     Verify the database is accessible from the cluster:
     
     ```bash
-    kubectl run postgres-test --rm -it --image=postgres:15-alpine -n documenso -- psql "postgresql://user:password@host:5432/database" -c "SELECT 1"
+    kubectl run postgres-test --rm -it --image=postgres:15-alpine -n freesign -- psql "postgresql://user:password@host:5432/database" -c "SELECT 1"
     ```
   </Accordion>
   <Accordion title="Ingress not working">
@@ -614,10 +614,10 @@ kubectl apply -f pdb.yaml
     
     ```bash
     # Get Ingress status
-    kubectl get ingress -n documenso
+    kubectl get ingress -n freesign
     
     # Describe Ingress
-    kubectl describe ingress documenso -n documenso
+    kubectl describe ingress freesign -n freesign
     ```
     
     Verify the Ingress controller is running:
@@ -635,14 +635,14 @@ kubectl apply -f pdb.yaml
     
     ```bash
     # Get signing certificate secret
-    kubectl get secret documenso-signing-cert -n documenso -o yaml
+    kubectl get secret freesign-signing-cert -n freesign -o yaml
     ```
     
     Verify the certificate is mounted correctly:
     
     ```bash
     # Execute command in pod
-    kubectl exec -it <pod-name> -n documenso -- ls -la /opt/documenso/
+    kubectl exec -it <pod-name> -n freesign -- ls -la /opt/documenso/
     ```
   </Accordion>
   <Accordion title="Health check failures">
@@ -650,7 +650,7 @@ kubectl apply -f pdb.yaml
     
     ```bash
     # Port forward
-    kubectl port-forward svc/documenso 3000:80 -n documenso
+    kubectl port-forward svc/freesign 3000:80 -n freesign
     
     # Test health endpoint
     curl http://localhost:3000/api/health
@@ -660,13 +660,13 @@ kubectl apply -f pdb.yaml
     If a deployment fails, rollback: 
     ```bash
     # View history
-    kubectl rollout history deployment/documenso -n documenso
+    kubectl rollout history deployment/freesign -n freesign
 
     # Rollback to previous version
-    kubectl rollout undo deployment/documenso -n documenso
+    kubectl rollout undo deployment/freesign -n freesign
 
     # Rollback to a specific revision
-    kubectl rollout undo deployment/documenso -n documenso --to-revision=2
+    kubectl rollout undo deployment/freesign -n freesign --to-revision=2
     ```
 
   </Accordion>
@@ -677,26 +677,26 @@ kubectl apply -f pdb.yaml
 Here's a combined manifest for reference:
 
 ```yaml
-# documenso-complete.yaml
+# freesign.complete.yaml
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: documenso
+  name: freesign
   labels:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: documenso-config
-  namespace: documenso
+  name: freesign-config
+  namespace: freesign
 data:
   NEXT_PUBLIC_WEBAPP_URL: 'https://sign.example.com'
   NEXT_PRIVATE_SMTP_TRANSPORT: 'smtp-auth'
   NEXT_PRIVATE_SMTP_HOST: 'smtp.example.com'
   NEXT_PRIVATE_SMTP_PORT: '587'
-  NEXT_PRIVATE_SMTP_FROM_NAME: 'Documenso'
+  NEXT_PRIVATE_SMTP_FROM_NAME: 'FreeSign'
   NEXT_PRIVATE_SMTP_FROM_ADDRESS: 'noreply@example.com'
   NEXT_PRIVATE_INTERNAL_WEBAPP_URL: 'http://localhost:3000'
   NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH: '/opt/documenso/cert.p12'
@@ -705,15 +705,15 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: documenso-secrets
-  namespace: documenso
+  name: freesign-secrets
+  namespace: freesign
 type: Opaque
 stringData:
   NEXTAUTH_SECRET: 'REPLACE_WITH_GENERATED_SECRET'
   NEXT_PRIVATE_ENCRYPTION_KEY: 'REPLACE_WITH_32_CHAR_KEY'
   NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY: 'REPLACE_WITH_32_CHAR_KEY'
-  NEXT_PRIVATE_DATABASE_URL: 'postgresql://user:password@host:5432/documenso'
-  NEXT_PRIVATE_DIRECT_DATABASE_URL: 'postgresql://user:password@host:5432/documenso'
+  NEXT_PRIVATE_DATABASE_URL: 'postgresql://user:password@host:5432/freesign'
+  NEXT_PRIVATE_DIRECT_DATABASE_URL: 'postgresql://user:password@host:5432/freesign'
   NEXT_PRIVATE_SMTP_USERNAME: 'smtp-user'
   NEXT_PRIVATE_SMTP_PASSWORD: 'smtp-password'
   NEXT_PRIVATE_SIGNING_PASSPHRASE: 'cert-passphrase'
@@ -721,33 +721,33 @@ stringData:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: documenso
+      app.kubernetes.io/name: freesign
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: documenso
+        app.kubernetes.io/name: freesign
     spec:
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
         fsGroup: 1001
       containers:
-        - name: documenso
-          image: documenso/documenso:latest
+        - name: freesign
+          image: freesign-io/freesign:latest
           ports:
             - name: http
               containerPort: 3000
           envFrom:
             - configMapRef:
-                name: documenso-config
+                name: freesign-config
             - secretRef:
-                name: documenso-secrets
+                name: freesign-secrets
           resources:
             requests:
               cpu: 250m
@@ -782,13 +782,13 @@ spec:
       volumes:
         - name: signing-cert
           secret:
-            secretName: documenso-signing-cert
+            secretName: freesign-signing-cert
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
 spec:
   type: ClusterIP
   ports:
@@ -796,13 +796,13 @@ spec:
       port: 80
       targetPort: http
   selector:
-    app.kubernetes.io/name: documenso
+    app.kubernetes.io/name: freesign
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: '50m'
     cert-manager.io/cluster-issuer: 'letsencrypt-prod'
@@ -811,7 +811,7 @@ spec:
   tls:
     - hosts:
         - sign.example.com
-      secretName: documenso-tls
+      secretName: freesign-tls
   rules:
     - host: sign.example.com
       http:
@@ -820,20 +820,20 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: documenso
+                name: freesign
                 port:
                   name: http
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: documenso
+    name: freesign
   minReplicas: 2
   maxReplicas: 10
   metrics:
@@ -847,13 +847,13 @@ spec:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: documenso
-  namespace: documenso
+  name: freesign
+  namespace: freesign
 spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: documenso
+      app.kubernetes.io/name: freesign
 ```
 
 ---
