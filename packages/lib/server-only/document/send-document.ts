@@ -87,6 +87,7 @@ export const sendDocument = async ({
               id: true,
               data: true,
               initialData: true,
+              normalizationStatus: true,
             },
           },
         },
