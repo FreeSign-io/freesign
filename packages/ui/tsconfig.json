@@ -1,5 +1,9 @@
 {
   "extends": "@documenso/tsconfig/react-library.json",
+  "compilerOptions": {
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo"
+  },
   "include": [
     "."
   ],
