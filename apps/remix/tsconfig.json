@@ -24,6 +24,8 @@
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
     "moduleDetection": "force",
     "resolveJsonModule": true,
     "isolatedModules": true,

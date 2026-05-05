@@ -35,6 +35,9 @@ yarn-error.log*
 .turbo
 .turbo-cookie
 
+# typescript incremental build info
+*.tsbuildinfo
+
 # vercel
 .vercel
 

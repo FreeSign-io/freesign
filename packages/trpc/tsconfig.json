@@ -4,5 +4,7 @@
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
     "strict": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo"
   }
 }
