@@ -39,3 +39,80 @@ jobs:
 
       - name: Build app
         run: npm run build
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/node-install
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Lint
+        run: npm run lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/node-install
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Cache TS build info
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/*/.tsbuildinfo
+            packages/*/.tsbuildinfo
+          key: ${{ runner.os }}-tsbuildinfo-${{ hashFiles('package-lock.json', '**/tsconfig.json') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-tsbuildinfo-${{ hashFiles('package-lock.json', '**/tsconfig.json') }}-
+            ${{ runner.os }}-tsbuildinfo-
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: React Router typegen
+        run: cd apps/remix && npx react-router typegen
+
+      - name: Typecheck (apps/remix)
+        run: npx tsc --noEmit -p apps/remix/tsconfig.json
+
+      - name: Typecheck (packages/lib)
+        run: npx tsc --noEmit -p packages/lib/tsconfig.json
+
+      - name: Typecheck (packages/ui)
+        run: npx tsc --noEmit -p packages/ui/tsconfig.json
+
+      - name: Typecheck (packages/trpc)
+        run: npx tsc --noEmit -p packages/trpc/tsconfig.json
+
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/node-install
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Run unit tests (packages/lib)
+        run: npm run test -w @documenso/lib
