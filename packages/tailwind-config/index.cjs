@@ -153,6 +153,7 @@ module.exports = {
         'caret-blink': 'caret-blink 1.25s ease-out infinite',
       },
       screens: {
+        xs: '480px',
         '3xl': '1920px',
         '4xl': '2560px',
         '5xl': '3840px',

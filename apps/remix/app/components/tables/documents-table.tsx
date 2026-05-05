@@ -7,6 +7,7 @@ import { DateTime } from 'luxon';
 import { Link } from 'react-router';
 import { match } from 'ts-pattern';
 
+import { useIsMobile } from '@documenso/lib/client-only/hooks/use-media-query';
 import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-update-search-params';
 import { useSession } from '@documenso/lib/client-only/providers/session';
 import { isDocumentCompleted } from '@documenso/lib/utils/document';
@@ -54,6 +55,7 @@ export const DocumentsTable = ({
   const [isPending, startTransition] = useTransition();
 
   const updateSearchParams = useUpdateSearchParams();
+  const isMobile = useIsMobile();
 
   const columns = useMemo(() => {
     const cols: DataTableColumnDef<DocumentsTableRow>[] = [];
@@ -85,12 +87,14 @@ export const DocumentsTable = ({
 
     cols.push(
       {
+        id: 'createdAt',
         header: _(msg`Created`),
         accessorKey: 'createdAt',
         cell: ({ row }) =>
           i18n.date(row.original.createdAt, { ...DateTime.DATETIME_SHORT, hourCycle: 'h12' }),
       },
       {
+        id: 'title',
         header: _(msg`Title`),
         cell: ({ row }) => (
           <DataTableTitle
@@ -165,7 +169,9 @@ export const DocumentsTable = ({
         totalPages={results.totalPages}
         onPaginationChange={onPaginationChange}
         columnVisibility={{
-          sender: team !== undefined,
+          sender: team !== undefined && !isMobile,
+          createdAt: !isMobile,
+          recipient: !isMobile,
         }}
         error={{
           enable: isLoadingError || false,
@@ -248,7 +254,7 @@ const DataTableTitle = ({ row, teamUrl, teamEmail }: DataTableTitleProps) => {
       <Link
         to={formatPath}
         title={row.title}
-        className="block max-w-[10rem] truncate font-medium hover:underline md:max-w-[20rem]"
+        className="block max-w-[14rem] truncate font-medium hover:underline sm:max-w-[18rem] md:max-w-[20rem]"
       >
         {row.title}
       </Link>
@@ -257,13 +263,13 @@ const DataTableTitle = ({ row, teamUrl, teamEmail }: DataTableTitleProps) => {
       <Link
         to={`/sign/${recipient?.token}`}
         title={row.title}
-        className="block max-w-[10rem] truncate font-medium hover:underline md:max-w-[20rem]"
+        className="block max-w-[14rem] truncate font-medium hover:underline sm:max-w-[18rem] md:max-w-[20rem]"
       >
         {row.title}
       </Link>
     ))
     .otherwise(() => (
-      <span className="block max-w-[10rem] truncate font-medium hover:underline md:max-w-[20rem]">
+      <span className="block max-w-[14rem] truncate font-medium hover:underline sm:max-w-[18rem] md:max-w-[20rem]">
         {row.title}
       </span>
     ));

@@ -16,7 +16,12 @@ import type {
   TSignFieldWithTokenMutationSchema,
 } from '@documenso/trpc/server/field-router/schema';
 import { Button } from '@documenso/ui/primitives/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@documenso/ui/primitives/dialog';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+} from '@documenso/ui/primitives/responsive-dialog';
 import { SignaturePad } from '@documenso/ui/primitives/signature-pad';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
@@ -270,14 +275,14 @@ export const DocumentSigningSignatureField = ({
         </div>
       )}
 
-      <Dialog open={showSignatureModal} onOpenChange={setShowSignatureModal}>
-        <DialogContent>
-          <DialogTitle>
+      <ResponsiveDialog open={showSignatureModal} onOpenChange={setShowSignatureModal}>
+        <ResponsiveDialogContent>
+          <ResponsiveDialogTitle>
             <Trans>
               Sign as {recipient.name}{' '}
               <div className="h-5 text-muted-foreground">({recipient.email})</div>
             </Trans>
-          </DialogTitle>
+          </ResponsiveDialogTitle>
 
           <SignaturePad
             className="mt-2"
@@ -291,7 +296,7 @@ export const DocumentSigningSignatureField = ({
 
           <DocumentSigningDisclosure />
 
-          <DialogFooter>
+          <ResponsiveDialogFooter>
             <div className="flex w-full flex-1 flex-nowrap gap-4">
               <Button
                 type="button"
@@ -313,9 +318,9 @@ export const DocumentSigningSignatureField = ({
                 <Trans>Sign</Trans>
               </Button>
             </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </DocumentSigningFieldContainer>
   );
 };

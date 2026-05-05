@@ -186,11 +186,17 @@ export const EnvelopeEditor = () => {
     envelopeEditorSteps.find((step) => step.id === searchParamsStep) || envelopeEditorSteps[0];
 
   return (
-    <div className="h-screen w-screen bg-envelope-editor-background">
+    <div className="h-dvh w-screen bg-envelope-editor-background">
       <EnvelopeEditorHeader />
 
+      <div className="border-b border-border bg-amber-50 px-4 py-2 text-xs text-amber-900 md:hidden dark:bg-amber-950 dark:text-amber-100">
+        <Trans>
+          The envelope editor works best on a larger screen. Some controls may be cramped on mobile.
+        </Trans>
+      </div>
+
       {/* Main Content Area */}
-      <div className="flex h-[calc(100vh-4rem)] w-screen">
+      <div className="flex h-[calc(100dvh-4rem)] w-screen">
         {/* Left Section - Step Navigation */}
         <div
           className={cn(

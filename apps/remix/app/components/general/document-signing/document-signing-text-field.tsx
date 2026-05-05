@@ -18,7 +18,12 @@ import type {
 } from '@documenso/trpc/server/field-router/schema';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@documenso/ui/primitives/dialog';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+} from '@documenso/ui/primitives/responsive-dialog';
 import { Textarea } from '@documenso/ui/primitives/textarea';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
@@ -255,11 +260,11 @@ export const DocumentSigningTextField = ({
         </DocumentSigningFieldsInserted>
       )}
 
-      <Dialog open={showCustomTextModal} onOpenChange={setShowCustomTextModal}>
-        <DialogContent>
-          <DialogTitle>
+      <ResponsiveDialog open={showCustomTextModal} onOpenChange={setShowCustomTextModal}>
+        <ResponsiveDialogContent>
+          <ResponsiveDialogTitle>
             {parsedFieldMeta?.label ? parsedFieldMeta?.label : <Trans>Text</Trans>}
-          </DialogTitle>
+          </ResponsiveDialogTitle>
 
           <div>
             <Textarea
@@ -279,7 +284,7 @@ export const DocumentSigningTextField = ({
           {parsedFieldMeta?.characterLimit !== undefined &&
             parsedFieldMeta?.characterLimit > 0 &&
             !userInputHasErrors && (
-              <div className="text-muted-foreground text-sm">
+              <div className="text-sm text-muted-foreground">
                 <Plural
                   value={charactersRemaining}
                   one="1 character remaining"
@@ -310,7 +315,7 @@ export const DocumentSigningTextField = ({
             </div>
           )}
 
-          <DialogFooter>
+          <ResponsiveDialogFooter>
             <div className="mt-4 flex w-full flex-1 flex-nowrap gap-4">
               <Button
                 type="button"
@@ -333,9 +338,9 @@ export const DocumentSigningTextField = ({
                 <Trans>Save</Trans>
               </Button>
             </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </DocumentSigningFieldContainer>
   );
 };

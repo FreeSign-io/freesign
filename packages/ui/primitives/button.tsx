@@ -22,6 +22,8 @@ const buttonVariants = cva(
         none: '',
       },
       size: {
+        // h-11 = 44px (WCAG 2.1 AA min touch target). default/lg meet it; sm intentionally
+        // smaller for dense desktop UI, callers should use default+ on mobile primary actions.
         default: 'h-10 py-2 px-4',
         sm: 'h-9 px-3 rounded-md',
         lg: 'h-11 px-8 rounded-md',

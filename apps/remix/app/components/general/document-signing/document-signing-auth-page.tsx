@@ -48,13 +48,13 @@ export const DocumentSigningAuthPageView = ({
   };
 
   return (
-    <div className="mx-auto flex h-[70vh] w-full max-w-md flex-col items-center justify-center">
+    <div className="mx-auto flex min-h-[60dvh] w-full max-w-md flex-col items-center justify-center px-4 py-12">
       <div>
         <h1 className="text-3xl font-semibold">
           <Trans>Authentication required</Trans>
         </h1>
 
-        <p className="text-muted-foreground mt-2 text-sm">
+        <p className="mt-2 text-sm text-muted-foreground">
           {email ? (
             <Trans>
               You need to be logged in as <strong>{email}</strong> to view this page.

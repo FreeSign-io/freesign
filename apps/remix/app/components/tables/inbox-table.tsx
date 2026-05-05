@@ -10,6 +10,7 @@ import { DateTime } from 'luxon';
 import { Link, useSearchParams } from 'react-router';
 import { match } from 'ts-pattern';
 
+import { useIsMobile } from '@documenso/lib/client-only/hooks/use-media-query';
 import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-update-search-params';
 import { useSession } from '@documenso/lib/client-only/providers/session';
 import { isDocumentCompleted } from '@documenso/lib/utils/document';
@@ -45,6 +46,7 @@ export const InboxTable = () => {
 
   const [searchParams] = useSearchParams();
   const updateSearchParams = useUpdateSearchParams();
+  const isMobile = useIsMobile();
 
   const page = searchParams?.get?.('page') ? Number(searchParams.get('page')) : undefined;
   const perPage = searchParams?.get?.('perPage') ? Number(searchParams.get('perPage')) : undefined;
@@ -57,15 +59,17 @@ export const InboxTable = () => {
   const columns = useMemo(() => {
     return [
       {
+        id: 'createdAt',
         header: _(msg`Created`),
         accessorKey: 'createdAt',
         cell: ({ row }) =>
           i18n.date(row.original.createdAt, { ...DateTime.DATETIME_SHORT, hourCycle: 'h12' }),
       },
       {
+        id: 'title',
         header: _(msg`Title`),
         cell: ({ row }) => (
-          <span className="block max-w-[10rem] truncate font-medium md:max-w-[20rem]">
+          <span className="block max-w-[14rem] truncate font-medium sm:max-w-[18rem] md:max-w-[20rem]">
             {row.original.title}
           </span>
         ),
@@ -124,13 +128,15 @@ export const InboxTable = () => {
         totalPages={results.totalPages}
         onPaginationChange={onPaginationChange}
         columnVisibility={{
-          sender: team !== undefined,
+          sender: team !== undefined && !isMobile,
+          createdAt: !isMobile,
+          recipient: !isMobile,
         }}
         error={{
           enable: isLoadingError || false,
         }}
         emptyState={
-          <div className="text-muted-foreground/60 flex h-60 flex-col items-center justify-center gap-y-4">
+          <div className="flex h-60 flex-col items-center justify-center gap-y-4 text-muted-foreground/60">
             <p>
               <Trans>Documents that require your attention will appear here</Trans>
             </p>
@@ -170,8 +176,8 @@ export const InboxTable = () => {
       </DataTable>
 
       {isPending && (
-        <div className="bg-background/50 absolute inset-0 flex items-center justify-center">
-          <Loader className="text-muted-foreground h-8 w-8 animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+          <Loader className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
     </div>
