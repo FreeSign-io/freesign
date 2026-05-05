@@ -37,6 +37,11 @@ export const executeWebhookCall = async (options: {
       timeoutMs: WEBHOOK_TIMEOUT_MS,
       headers: {
         'Content-Type': 'application/json',
+        // Send both header names. X-FreeSign-Secret is the new canonical
+        // name; X-Documenso-Secret is still emitted so existing webhook
+        // receivers don't break on rebrand. New integrations should verify
+        // against X-FreeSign-Secret.
+        'X-FreeSign-Secret': secret ?? '',
         'X-Documenso-Secret': secret ?? '',
       },
     });
