@@ -13,13 +13,13 @@ on:
 jobs:
   build_and_publish_platform_containers:
     name: Build and publish platform containers
-    runs-on: ${{ matrix.os }}
+    # GitHub-hosted runner. ARM64 native runner support on free GitHub
+    # plans is limited — for arm64 we cross-build on amd64 via QEMU.
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - warp-ubuntu-latest-x64-4x
-          - warp-ubuntu-latest-arm64-4x
+        platform: [amd64, arm64]
 
     steps:
       - uses: actions/checkout@v4
@@ -34,9 +34,15 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GH_TOKEN }}
 
-      - name: Build the docker image
+      - name: Set up QEMU (for cross-arch builds)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push the docker image
         env:
-          BUILD_PLATFORM: ${{ matrix.os == 'warp-ubuntu-latest-arm64-4x' && 'arm64' || 'amd64' }}
+          BUILD_PLATFORM: ${{ matrix.platform }}
           NEXT_PRIVATE_TELEMETRY_KEY: ${{ secrets.NEXT_PRIVATE_TELEMETRY_KEY }}
           NEXT_PRIVATE_TELEMETRY_HOST: ${{ secrets.NEXT_PRIVATE_TELEMETRY_HOST }}
           APP_VERSION: ${{ inputs.tag || '' }}
@@ -46,20 +52,17 @@ jobs:
           fi
           GIT_SHA="$(git rev-parse HEAD)"
 
-          docker build \
+          docker buildx build \
             -f ./docker/Dockerfile \
+            --platform "linux/$BUILD_PLATFORM" \
             --progress=plain \
             --build-arg NEXT_PRIVATE_TELEMETRY_KEY="${NEXT_PRIVATE_TELEMETRY_KEY:-}" \
             --build-arg NEXT_PRIVATE_TELEMETRY_HOST="${NEXT_PRIVATE_TELEMETRY_HOST:-}" \
             -t "ghcr.io/freesign-io/freesign-$BUILD_PLATFORM:latest" \
             -t "ghcr.io/freesign-io/freesign-$BUILD_PLATFORM:$GIT_SHA" \
             -t "ghcr.io/freesign-io/freesign-$BUILD_PLATFORM:$APP_VERSION" \
+            --push \
             .
-
-      - name: Push the docker image to GitHub Container Registry
-        run: docker push --all-tags "ghcr.io/freesign-io/freesign-$BUILD_PLATFORM"
-        env:
-          BUILD_PLATFORM: ${{ matrix.os == 'warp-ubuntu-latest-arm64-4x' && 'arm64' || 'amd64' }}
 
   create_and_publish_manifest:
     name: Create and publish manifest
