@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # FreeSign deploy script.
 # Run on the freesign server (Ubuntu, Node 22, Caddy, postgres in docker).
-# Pulls latest source, builds the Remix app + esbuild server bundle, restarts
+# Pulls latest source, builds the Remix app + Rollup server bundle, restarts
 # the freesign systemd service.
 #
 # Idempotent: re-runs cheaply when there are no source changes (npm ci is the
@@ -84,18 +84,17 @@ wait $BUILD_PID    || die "react-router build failed"
 
 cd "$REPO_DIR/apps/remix"
 
-log "Build server (esbuild)"
+log "Build server (rollup)"
 NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
-  npx cross-env NODE_ENV=production node esbuild.config.mjs
+  npx cross-env NODE_ENV=production rollup -c rollup.config.mjs
 
 # Copy entrypoint into build dir (matches what the official build.sh does).
 cp -f server/main.js build/server/main.js
 
-# The hono runtime imports compiled .mjs Lingui catalogs via dynamic
-# `import('packages/lib/translations/<locale>/web.mjs')`. esbuild does
-# not bundle them (the dynamic import is rewritten to resolve via
-# `import.meta.url` against the bundle's own location), so we mirror
-# them next to the bundle output here.
+# Rollup's TS plugin compiles imports but doesn't copy already-compiled .mjs
+# Lingui catalogs into the bundle. The Hono runtime imports them via dynamic
+# `import('packages/lib/translations/<locale>/web.mjs')`, so we mirror them
+# into the rolled-up output directory.
 mkdir -p build/server/hono/packages/lib/translations
 cp -r "$REPO_DIR"/packages/lib/translations/* build/server/hono/packages/lib/translations/
 
@@ -108,7 +107,7 @@ cd "$REPO_DIR"
 
 log "Reloading systemd unit + restarting $SERVICE"
 # Re-sync translations one more time as a belt-and-braces guard. If a previous
-# deploy was interrupted between the esbuild output and the cp above, the
+# deploy was interrupted between the rollup output and the cp above, the
 # translations dir would be missing and the service would crash-loop.
 mkdir -p "$REPO_DIR/apps/remix/build/server/hono/packages/lib/translations"
 cp -rf "$REPO_DIR"/packages/lib/translations/* \
