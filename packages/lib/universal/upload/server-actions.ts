@@ -52,6 +52,61 @@ export const getPresignPostUrl = async (fileName: string, contentType: string, u
   return { key, url };
 };
 
+/**
+ * Issues a presigned PUT URL with a Content-Length / Content-Type policy that
+ * matches the caller's declared file. Browsers can PUT directly to Spaces
+ * without round-tripping through the FreeSign server.
+ *
+ * The Content-Length the browser sends MUST equal `contentLength` exactly, or
+ * Spaces rejects the upload — this is how we keep callers honest about the
+ * size we already validated against APP_DOCUMENT_UPLOAD_SIZE_LIMIT.
+ */
+export const getPresignPutUrl = async ({
+  fileName,
+  contentType,
+  contentLength,
+  userId,
+  expiresInSeconds = (15 * 60) | 0,
+}: {
+  fileName: string;
+  contentType: string;
+  contentLength: number;
+  userId?: number;
+  expiresInSeconds?: number;
+}) => {
+  const client = getS3Client();
+
+  const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
+
+  const { name, ext } = path.parse(fileName);
+
+  let slugified = slugify(name);
+  if (slugified.length === 0 || slugified.length > 100) {
+    slugified = alphaid(8);
+  }
+
+  let key = `${alphaid(12)}/${slugified}${ext}`;
+  if (userId) {
+    key = `${userId}/${key}`;
+  }
+
+  const putObjectCommand = new PutObjectCommand({
+    Bucket: env('NEXT_PRIVATE_UPLOAD_BUCKET'),
+    Key: key,
+    ContentType: contentType,
+    ContentLength: contentLength,
+  });
+
+  const url = await getSignedUrl(client, putObjectCommand, {
+    expiresIn: expiresInSeconds,
+    unhoistableHeaders: new Set(['content-length']),
+  });
+
+  const expiresAt = new Date(Date.now() + expiresInSeconds * 1000).toISOString();
+
+  return { key, url, expiresAt };
+};
+
 export const getAbsolutePresignPostUrl = async (key: string) => {
   const client = getS3Client();
 

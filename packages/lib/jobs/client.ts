@@ -12,9 +12,11 @@ import { SEND_SIGNING_EMAIL_JOB_DEFINITION } from './definitions/emails/send-sig
 import { SEND_TEAM_DELETED_EMAIL_JOB_DEFINITION } from './definitions/emails/send-team-deleted-email';
 import { BACKPORT_SUBSCRIPTION_CLAIM_JOB_DEFINITION } from './definitions/internal/backport-subscription-claims';
 import { BULK_SEND_TEMPLATE_JOB_DEFINITION } from './definitions/internal/bulk-send-template';
+import { CLEANUP_ORPHANED_UPLOADS_JOB_DEFINITION } from './definitions/internal/cleanup-orphaned-uploads';
 import { CLEANUP_RATE_LIMITS_JOB_DEFINITION } from './definitions/internal/cleanup-rate-limits';
 import { EXECUTE_WEBHOOK_JOB_DEFINITION } from './definitions/internal/execute-webhook';
 import { EXPIRE_RECIPIENTS_SWEEP_JOB_DEFINITION } from './definitions/internal/expire-recipients-sweep';
+import { NORMALIZE_PDF_JOB_DEFINITION } from './definitions/internal/normalize-pdf';
 import { PROCESS_RECIPIENT_EXPIRED_JOB_DEFINITION } from './definitions/internal/process-recipient-expired';
 import { PROCESS_SIGNING_REMINDER_JOB_DEFINITION } from './definitions/internal/process-signing-reminder';
 import { SEAL_DOCUMENT_JOB_DEFINITION } from './definitions/internal/seal-document';
@@ -49,6 +51,8 @@ export const jobsClient = new JobClient([
   PROCESS_SIGNING_REMINDER_JOB_DEFINITION,
   CLEANUP_RATE_LIMITS_JOB_DEFINITION,
   SYNC_EMAIL_DOMAINS_JOB_DEFINITION,
+  NORMALIZE_PDF_JOB_DEFINITION,
+  CLEANUP_ORPHANED_UPLOADS_JOB_DEFINITION,
 ] as const);
 
 export const jobs = jobsClient;

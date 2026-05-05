@@ -6,6 +6,7 @@ import { updateAttachmentRoute } from './attachment/update-attachment';
 import { bulkDeleteEnvelopesRoute } from './bulk-delete-envelopes';
 import { bulkMoveEnvelopesRoute } from './bulk-move-envelopes';
 import { createEnvelopeRoute } from './create-envelope';
+import { createEnvelopeFromKeysRoute } from './create-envelope-from-keys';
 import { createEnvelopeItemsRoute } from './create-envelope-items';
 import { deleteEnvelopeRoute } from './delete-envelope';
 import { deleteEnvelopeItemRoute } from './delete-envelope-item';
@@ -90,6 +91,7 @@ export const envelopeRouter = router({
   get: getEnvelopeRoute,
   getMany: getEnvelopesByIdsRoute,
   create: createEnvelopeRoute,
+  createFromKeys: createEnvelopeFromKeysRoute,
   use: useEnvelopeRoute,
   update: updateEnvelopeRoute,
   delete: deleteEnvelopeRoute,
