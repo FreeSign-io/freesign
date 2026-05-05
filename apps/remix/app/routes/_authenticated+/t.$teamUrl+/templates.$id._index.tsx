@@ -124,7 +124,7 @@ export default function TemplatePage({ params }: Route.ComponentProps) {
       <div className="flex flex-row justify-between">
         <Link
           to={templateRootPath}
-          className="flex items-center text-documenso-700 hover:opacity-80"
+          className="flex items-center text-freesign-700 hover:opacity-80"
         >
           <ChevronLeft className="mr-2 inline-block h-5 w-5" />
           <Trans>Templates</Trans>

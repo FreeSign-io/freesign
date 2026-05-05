@@ -30,7 +30,7 @@ export default function HomePage() {
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             href="/docs/users"
-            className="bg-documenso text-fd-primary-foreground hover:bg-documenso-dark/90 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
+            className="bg-freesign text-fd-primary-foreground hover:bg-freesign-dark/90 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
           >
             Get Started
           </Link>
