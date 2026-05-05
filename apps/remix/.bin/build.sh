@@ -28,7 +28,8 @@ npm run build:server
 # Copy over the entry point for the server.
 cp server/main.js build/server/main.js
 
-# Copy over all web.js translations
+# Copy over all web.js translations (esbuild does not emit to packages/, so create the parent)
+mkdir -p build/server/hono/packages/lib
 cp -r ../../packages/lib/translations build/server/hono/packages/lib/translations
 
 # Time taken
