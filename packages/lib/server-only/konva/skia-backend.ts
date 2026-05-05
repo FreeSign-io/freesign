@@ -5,10 +5,13 @@
 import { Konva } from 'konva/lib/_CoreInternals';
 import { Canvas, DOMMatrix, Image, Path2D } from 'skia-canvas';
 
-// @ts-expect-error skia-canvas satisfies the requirements
+// Type mismatch: skia-canvas exposes runtime-compatible DOMMatrix/Path2D shims but their declared
+// types are not nominally identical to the DOM globals. Konva only relies on the shape of these
+// constructors, so the assignment is safe at runtime.
+// @ts-expect-error skia-canvas DOMMatrix is shape-compatible with the DOM global
 global.DOMMatrix = DOMMatrix;
 
-// @ts-expect-error skia-canvas satisfies the requirements
+// @ts-expect-error skia-canvas Path2D is shape-compatible with the DOM global
 global.Path2D = Path2D;
 Path2D.prototype.toString = () => '[object Path2D]';
 

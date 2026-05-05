@@ -404,6 +404,8 @@ export const EnvelopeEditorUploadPage = () => {
   // unmounting, so the flush callback remains valid.
   useEffect(() => {
     registerExternalFlush('envelopeItems', async () => flushUpdateEnvelopeItemsRef.current());
+    // Mount-only registration: see comment above; `registerExternalFlush` is captured at first
+    // render and we do not want to re-register on every parent re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -435,8 +437,13 @@ export const EnvelopeEditorUploadPage = () => {
     }
 
     return null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localFiles.length, maximumEnvelopeItemCount, remaining.documents]);
+  }, [
+    localFiles.length,
+    maximumEnvelopeItemCount,
+    remaining.documents,
+    envelopeItemPermissions.canFileBeChanged,
+    organisation.subscription,
+  ]);
 
   const onFileDropRejected = (fileRejections: FileRejection[]) => {
     const maxItemsReached = fileRejections.some((fileRejection) =>

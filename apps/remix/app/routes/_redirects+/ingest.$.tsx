@@ -27,7 +27,8 @@ const posthogProxy = async (request: Request) => {
 
   if (!['GET', 'HEAD'].includes(request.method)) {
     fetchOptions.body = request.body;
-    // @ts-expect-error - It should exist
+    // Stale lib.dom types: `duplex` is required at runtime when streaming a ReadableStream body via fetch (Node 18+/undici), but the DOM RequestInit types don't yet declare it.
+    // @ts-expect-error - duplex is missing from RequestInit in lib.dom but required for streaming bodies
     fetchOptions.duplex = 'half';
   }
 

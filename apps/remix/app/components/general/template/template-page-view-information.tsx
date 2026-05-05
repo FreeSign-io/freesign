@@ -50,6 +50,9 @@ export const TemplatePageViewInformation = ({
         value: mapSecondaryIdToTemplateId(template.secondaryId),
       },
     ];
+    // TODO(audit): consider adding `_` / `i18n` to deps so the formatted strings update on
+    // locale change. Leaving as-is to preserve current behavior (matches
+    // document-page-view-information.tsx).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted, template, userId]);
 

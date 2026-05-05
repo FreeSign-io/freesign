@@ -178,6 +178,9 @@ export const DocumentSigningAuthProvider = ({
       setPreferredPasskeyId(passkeys[0].id);
     }
 
+    // First-pick-only: we deliberately omit `preferredPasskeyId` from deps. Including it would
+    // immediately re-run after we set it, which is harmless but noisy; intentional-stale read so
+    // we only auto-pick a passkey when the list arrives and nothing is selected yet.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [passkeyData.passkeys]);
 

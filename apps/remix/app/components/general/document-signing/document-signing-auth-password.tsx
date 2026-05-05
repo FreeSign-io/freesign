@@ -85,6 +85,8 @@ export const DocumentSigningAuthPassword = ({
 
     setFormErrorCode(null);
 
+    // Sync-from-prop on open: only re-runs when `open` flips so we clear the password field on
+    // (re-)open. Adding `form` would re-reset on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 

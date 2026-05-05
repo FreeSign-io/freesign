@@ -166,6 +166,9 @@ export const AdminOrganisationOverviewTable = ({
         sortOrder,
       });
     });
+    // Search-driven refetch: only re-runs when the debounced search string changes. Adding
+    // `perPage` / `sortBy` / `sortOrder` would re-fire on every sort/page-size change and reset
+    // the user's pagination position.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchString]);
 

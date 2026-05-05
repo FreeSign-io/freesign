@@ -113,6 +113,8 @@ export const TeamGroupUpdateDialog = ({
 
     form.reset();
 
+    // Sync-from-prop on open: only re-runs when `open` flips. Lingui `_`/`msg` deps are
+    // intentionally omitted to avoid resetting the form on locale change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, team.currentTeamRole, teamGroupRole, form, toast]);
 

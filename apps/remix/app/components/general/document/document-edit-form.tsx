@@ -431,6 +431,8 @@ export const DocumentEditForm = ({
   useEffect(() => {
     void refetchDocument();
 
+    // Step-driven refetch: intentionally only re-runs when the wizard step changes. tRPC's
+    // `refetchDocument` is a stable reference but ESLint can't verify that across versions.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 

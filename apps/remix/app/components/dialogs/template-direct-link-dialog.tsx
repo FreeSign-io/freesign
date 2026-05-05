@@ -203,6 +203,9 @@ export const TemplateDirectLinkDialog = ({
     setCurrentStep(token ? 'MANAGE' : 'ONBOARD');
     setSelectedRecipientId(null);
 
+    // Sync-from-prop on open: intentionally only re-runs when the dialog opens. Including
+    // `token` would re-reset the dialog every time it changes mid-flow (e.g. after the create
+    // mutation populates it), bouncing the user back to ONBOARD.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 

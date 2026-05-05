@@ -123,6 +123,9 @@ export const OrganisationMemberUpdateDialog = ({
         variant: 'destructive',
       });
     }
+    // Sync-from-prop on open: only re-runs when `open` flips. The lingui `_` translator and
+    // `msg` macro are intentionally omitted; otherwise the toast would re-fire on locale changes
+    // and the form would reset mid-edit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, currentUserOrganisationRole, organisationMemberRole, form, toast]);
 

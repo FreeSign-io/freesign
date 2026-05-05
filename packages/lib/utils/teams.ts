@@ -233,7 +233,11 @@ export const extractDerivedTeamSettings = (
     const teamValue = teamSettings[key];
 
     if (teamValue !== null) {
-      // @ts-expect-error Should work
+      // TS index-correlation limitation: when iterating a generic key, `teamSettings[key]` is
+      // typed as the union of all field types and TS can't prove it matches the per-key type of
+      // `derivedSettings[key]`. The runtime check above guarantees we only assign non-null values
+      // for matching keys.
+      // @ts-expect-error TS cannot correlate the per-key types across the two settings records
       derivedSettings[key] = teamValue;
     }
   }

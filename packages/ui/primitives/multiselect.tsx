@@ -282,6 +282,8 @@ const MultiSelect = ({
     };
 
     void exec();
+    // Stable callback by contract: `onSearchSync` is provided by the parent and may be a fresh
+    // closure each render. Adding it would cause an extra search on every parent re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm, groupBy, open, triggerSearchOnFocus]);
 
@@ -308,6 +310,8 @@ const MultiSelect = ({
     };
 
     void exec();
+    // Stable callback by contract: `onSearch` is provided by the parent and may be a fresh
+    // closure each render. Adding it would cause an extra search on every parent re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm, groupBy, open, triggerSearchOnFocus]);
 

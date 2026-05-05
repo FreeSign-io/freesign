@@ -160,6 +160,9 @@ export const createOpenApiFetchHandler = async <TRouter extends OpenApiRouter>(
   const url = new URL(opts.req.url.replace(opts.endpoint, ''));
   const req: Request = await createRequestProxy(opts.req, url.toString());
 
+  // Upstream type mismatch: `createOpenApiNodeHttpHandler` from `trpc-to-openapi` expects the
+  // node-http variant of the handler options; we pass the fetch variant on purpose because we
+  // adapt Fetch <-> Node HTTP via the proxy/res mock below. Behavior matches upstream's fetch handler.
   // @ts-expect-error Inherited from original fetch handler in `trpc-to-openapi`
   const openApiHttpHandler = createOpenApiNodeHttpHandler(opts);
 
