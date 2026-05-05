@@ -3,8 +3,10 @@ name: 'Extract and upload translations'
 on:
   workflow_dispatch:
   workflow_call:
-  push:
-    branches: ['main']
+  # Disabled until CROWDIN_PROJECT_ID and CROWDIN_PERSONAL_TOKEN repo secrets are configured.
+  # Re-enable by uncommenting the push trigger below.
+  # push:
+  #   branches: ['main']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
