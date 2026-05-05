@@ -45,8 +45,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ hashFiles('package-lock.json', 'docker/Dockerfile') }}-${{ github.sha }}
           restore-keys: |
+            ${{ runner.os }}-buildx-${{ hashFiles('package-lock.json', 'docker/Dockerfile') }}-
             ${{ runner.os }}-buildx-
 
       - name: Build Docker Image
