@@ -72,7 +72,7 @@ command via `command="sudo /opt/freesign/app/deploy.sh"` in
 
 ## Resource requirements
 
-- Minimum: **2 GB RAM + 4 GB swap** (build will hit swap during rollup)
+- Minimum: **2 GB RAM + 4 GB swap** (build will hit swap during react-router build)
 - Recommended: **4 GB RAM** (no swap pressure)
 - Disk: ~20 GB (node_modules + DB volume + Docker images)
 
