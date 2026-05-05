@@ -113,7 +113,8 @@ export async function loader({ request }: Route.LoaderArgs) {
  * Update: Maybe <Trans> tags work now after RR7 migration.
  */
 export default function SigningCertificate({ loaderData }: Route.ComponentProps) {
-  const { document, documentLanguage, hidePoweredBy, auditLogs, messages } = loaderData;
+  const { document, documentLanguage, hidePoweredBy, auditLogs, messages } =
+    loaderData as Awaited<ReturnType<typeof loader>>;
 
   const { i18n, _ } = useLingui();
 

@@ -34,7 +34,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export default function TeamsSettingsPage({ loaderData }: Route.ComponentProps) {
-  const { team } = loaderData;
+  const { team } = loaderData as { team: Awaited<ReturnType<typeof getTeamWithEmail>> };
 
   const currentTeam = useCurrentTeam();
 

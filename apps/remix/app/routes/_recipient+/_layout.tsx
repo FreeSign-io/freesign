@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 import { ChevronLeft } from 'lucide-react';
-import { Link, Outlet, isRouteErrorResponse } from 'react-router';
+import { Link, Outlet, isRouteErrorResponse, type UIMatch } from 'react-router';
 
 import { useOptionalSession } from '@documenso/lib/client-only/providers/session';
 import { cn } from '@documenso/ui/lib/utils';
@@ -22,7 +22,7 @@ export default function RecipientLayout({ matches }: Route.ComponentProps) {
 
   // Hide the header for signing routes.
   const hideHeader = matches.some(
-    (match) =>
+    (match: UIMatch | undefined) =>
       match?.id === 'routes/_recipient+/sign.$token+/_index' ||
       match?.id === 'routes/_recipient+/d.$token+/_index',
   );
