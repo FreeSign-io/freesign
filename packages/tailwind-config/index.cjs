@@ -67,10 +67,8 @@ module.exports = {
           DEFAULT: 'hsl(var(--widget))',
           foreground: 'hsl(var(--widget-foreground))',
         },
-        documenso: {
+        freesign: {
           // FreeSign brand: emerald palette, with #10b981 as the 500 / DEFAULT.
-          // Token left as `documenso` to minimize cross-package churn; the
-          // values are now the FreeSign green and match the marketing landing.
           DEFAULT: '#10b981',
           50: '#ecfdf5',
           100: '#d1fae5',
