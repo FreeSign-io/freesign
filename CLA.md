@@ -1,45 +1,26 @@
-# Documenso Contributors License Agreement
+# Developer Certificate of Origin
 
-This Contributors License Agreement ("CLA") is entered into between the Contributor, and Documenso Inc. ("Documenso"), collectively referred to as the "Parties."
+FreeSign uses the [Developer Certificate of Origin (DCO)](https://developercertificate.org/) to certify the provenance of contributions.
 
-## Background:
+By contributing to this project, you certify that:
 
-Documenso is an open-source project aimed at providing an open-source document signing platform for all parties. This CLA governs the rights and contributions made by the Contributor to the Documenso project.
+1. The contribution was created in whole or in part by you and you have the right to submit it under the open source license indicated in the file; or
+2. The contribution is based upon previous work that, to the best of your knowledge, is covered under an appropriate open source license and you have the right under that license to submit that work with modifications, whether created in whole or in part by you, under the same open source license (unless you are permitted to submit under a different license), as indicated in the file; or
+3. The contribution was provided directly to you by some other person who certified (1), (2), or (3) and you have not modified it.
+4. You understand and agree that this project and the contribution are public and that a record of the contribution (including all personal information you submit with it, including your sign-off) is maintained indefinitely and may be redistributed consistent with this project or the open source license(s) involved.
 
-## Agreement:
+## Signing off
 
-**Contributor Grant of License:**
+Add a `Signed-off-by` line to each commit message:
 
-By submitting code, documentation, or any other materials (collectively, "Contributions") to the Documenso project, the Contributor grants Documenso a perpetual, worldwide, non-exclusive, royalty-free, sublicensable license to use, modify, distribute, and otherwise exploit the Contributions, including any intellectual property rights therein, for the purposes of the Documenso project.
+```
+Signed-off-by: Your Name <your.email@example.com>
+```
 
-**Representation of Ownership and Right to Contribute:**
+You can do this automatically with:
 
-The Contributor represents that they have the legal right to grant the license stated in Section 1, and that the Contributions do not infringe upon the intellectual property rights of any third party. The Contributor also represents that they have the authority to submit the Contributions on their own behalf or, if applicable, on behalf of their employer or any other entity.
+```sh
+git commit -s
+```
 
-**Patent Grant:**
-
-If the Contributions include any method, process, or apparatus that is covered by a patent, the Contributor agrees to grant Documenso a non-exclusive, worldwide, royalty-free license under any patent claims necessary to use, modify, distribute, and otherwise exploit the Contributions for the purposes of the Documenso project.
-
-**No Implied Warranties or Support:**
-
-The Contributor acknowledges that the Contributions are provided "as is," without any warranties or support of any kind. Documenso shall have no obligation to provide maintenance, updates, bug fixes, or support for the Contributions.
-
-**Retention of Contributor Rights:**
-
-The Contributor retains all right, title, and interest in and to their Contributions. This CLA does not restrict the Contributor from using their own Contributions for any other purpose.
-
-**Governing Law:**
-
-This CLA shall be governed by and construed in accordance with the laws of California (CA), without regard to its conflict of laws principles.
-
-**Entire Agreement:**
-
-This CLA constitutes the entire agreement between the Parties with respect to the subject matter hereof and supersedes all prior and contemporaneous understandings, agreements, representations, and warranties.
-
-**Acceptance:**
-
-By submitting Contributions to the Documenso project, the Contributor acknowledges and agrees to the terms and conditions of this CLA. If the Contributor is agreeing to this CLA on behalf of an entity, they represent that they have the necessary authority to bind that entity to these terms.
-
-**Effective Date:**
-
-This CLA is effective as of the date of the first Contribution made by the Contributor to the Documenso project.
+The name and email must match the values configured in your `git config`.

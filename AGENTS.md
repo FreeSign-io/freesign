@@ -1,4 +1,4 @@
-# Agent Guidelines for Documenso
+# Agent Guidelines for FreeSign
 
 ## Build/Test/Lint Commands
 

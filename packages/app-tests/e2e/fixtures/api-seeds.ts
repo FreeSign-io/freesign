@@ -819,7 +819,7 @@ export const apiSeedDirectTemplate = async (
 > => {
   const recipients = options.recipients ?? [
     options.directRecipient ?? {
-      email: 'direct-template-recipient@documenso.com',
+      email: 'direct-template-recipient@freesign.com',
       name: 'Direct Template Recipient',
       role: 'SIGNER' as const,
     },

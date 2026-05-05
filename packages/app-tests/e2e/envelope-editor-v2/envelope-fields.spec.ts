@@ -30,7 +30,7 @@ type TFieldFlowResult = {
 
 const TEST_FIELD_VALUES = {
   embeddedRecipient: {
-    email: 'embedded-field-recipient@documenso.com',
+    email: 'embedded-field-recipient@freesign.com',
     name: 'Embedded Field Recipient',
   },
 };
