@@ -140,7 +140,7 @@ app.use(`/api/v2-beta/*`, async (c) =>
 );
 
 // Start telemetry client for anonymous usage tracking.
-// Can be disabled by setting DOCUMENSO_DISABLE_TELEMETRY=true
+// Can be disabled by setting FREESIGN_DISABLE_TELEMETRY=true (or the legacy DOCUMENSO_DISABLE_TELEMETRY=true)
 if (env('NODE_ENV') !== 'development') {
   void TelemetryClient.start();
 }
