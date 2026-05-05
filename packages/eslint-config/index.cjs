@@ -1,7 +1,7 @@
 module.exports = {
   extends: ['turbo', 'eslint:recommended', 'plugin:@typescript-eslint/recommended'],
 
-  plugins: ['unused-imports'],
+  plugins: ['unused-imports', 'react-hooks'],
 
   env: {
     es2022: true,
