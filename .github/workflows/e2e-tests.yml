@@ -13,7 +13,10 @@ jobs:
   e2e_tests:
     name: 'E2E Tests'
     timeout-minutes: 60
-    runs-on: warp-ubuntu-2204-x64-8x
+    # GitHub-hosted runner. Was `warp-ubuntu-2204-x64-8x` (a Warp Build
+    # third-party runner from the upstream Documenso config) — FreeSign-io
+    # doesn't have Warp configured, so jobs sat queued forever.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
