@@ -33,6 +33,25 @@ git fetch origin --quiet
 git reset --hard "$BRANCH"
 git log -1 --oneline
 
+# Self-update guard: if deploy.sh on disk no longer matches what's in
+# memory, re-exec the new script. Otherwise we'd run a hybrid of the
+# old script (already loaded) against the new filesystem layout, which
+# is how prod went down on 2026-05-05.
+SCRIPT_PATH="$(readlink -f "$0")"
+DISK_SHA=$(sha256sum "$SCRIPT_PATH" | awk '{print $1}')
+MEM_SHA="${DEPLOY_SCRIPT_SHA:-unset}"
+if [[ "$MEM_SHA" == "unset" ]]; then
+  # First run: re-exec with the SHA env var so the next invocation can
+  # detect a script swap.
+  export DEPLOY_SCRIPT_SHA="$DISK_SHA"
+  exec "$SCRIPT_PATH" "$@"
+elif [[ "$MEM_SHA" != "$DISK_SHA" ]]; then
+  # On-disk script changed since this process started. Re-exec.
+  log "deploy.sh changed on disk after fetch - re-executing new script"
+  export DEPLOY_SCRIPT_SHA="$DISK_SHA"
+  exec "$SCRIPT_PATH" "$@"
+fi
+
 # Decide whether npm ci is needed: only if lockfile or top-level package.json changed
 NEED_INSTALL=0
 if [[ ! -d node_modules ]]; then
@@ -49,6 +68,17 @@ if [[ $NEED_INSTALL -eq 1 ]]; then
 else
   log "Lockfile unchanged - skipping npm install"
 fi
+
+# Apply Prisma migrations + regenerate the client every deploy. Both are
+# idempotent: `migrate deploy` is a no-op when the DB is already at head,
+# and `generate` is a few-second client codegen. Folding them in here means
+# schema changes (e.g. PR #4's normalizationStatus column) ship with the
+# deploy instead of needing a manual `npx prisma migrate deploy` after.
+log "Applying Prisma migrations + regenerating client"
+NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
+  npx prisma migrate deploy --schema packages/prisma/schema.prisma
+NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
+  npx prisma generate --schema packages/prisma/schema.prisma
 
 # Build pipeline. We avoid `npm run build` (turbo) because it also builds
 # apps/docs which we don't host, and turbo's typecheck step OOMs on a 2 GB VPS.
