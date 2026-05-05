@@ -17,9 +17,9 @@ import { APP_DOCUMENT_UPLOAD_SIZE_LIMIT, IS_BILLING_ENABLED } from '@documenso/l
 import { DEFAULT_DOCUMENT_TIME_ZONE, TIME_ZONES } from '@documenso/lib/constants/time-zones';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { megabytesToBytes } from '@documenso/lib/universal/unit-convertions';
+import { putPdfFileViaPresignedPut } from '@documenso/lib/universal/upload/put-pdf-via-presigned-put';
 import { formatDocumentsPath, formatTemplatesPath } from '@documenso/lib/utils/teams';
 import { trpc } from '@documenso/trpc/react';
-import type { TCreateEnvelopePayload } from '@documenso/trpc/server/envelope-router/create-envelope.types';
 import { buildDropzoneRejectionDescription } from '@documenso/ui/lib/handle-dropzone-rejection';
 import { cn } from '@documenso/ui/lib/utils';
 import { useToast } from '@documenso/ui/primitives/use-toast';
@@ -49,6 +49,7 @@ export const EnvelopeDropZoneWrapper = ({
   const organisation = useCurrentOrganisation();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const userTimezone =
     TIME_ZONES.find((timezone) => timezone === Intl.DateTimeFormat().resolvedOptions().timeZone) ??
@@ -56,7 +57,7 @@ export const EnvelopeDropZoneWrapper = ({
 
   const { quota, remaining, refreshLimits, maximumEnvelopeItemCount } = useLimits();
 
-  const { mutateAsync: createEnvelope } = trpc.envelope.create.useMutation();
+  const { mutateAsync: createEnvelopeFromKeys } = trpc.envelope.createFromKeys.useMutation();
 
   const isUploadDisabled = remaining.documents === 0 || !user.emailVerified;
 
@@ -68,25 +69,40 @@ export const EnvelopeDropZoneWrapper = ({
 
     try {
       setIsLoading(true);
+      setUploadProgress(0);
 
-      const payload = {
-        folderId,
-        type,
-        title: files[0].name,
-        meta: {
-          timezone: userTimezone,
-        },
-      } satisfies TCreateEnvelopePayload;
+      // Sequentially upload each file directly to Spaces (one large PDF at a
+      // time keeps memory bounded on the user's device).
+      const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
+      let bytesDoneAcrossFiles = 0;
 
-      const formData = new FormData();
-
-      formData.append('payload', JSON.stringify(payload));
-
+      const uploadedFiles: Array<{ key: string; fileName: string; fileSize: number }> = [];
       for (const file of files) {
-        formData.append('files', file);
+        const uploaded = await putPdfFileViaPresignedPut(file, {
+          onProgress: (loaded) => {
+            const overall = ((bytesDoneAcrossFiles + loaded) / totalBytes) * 100;
+            setUploadProgress(Math.min(99, Math.round(overall)));
+          },
+        });
+        bytesDoneAcrossFiles += file.size;
+        uploadedFiles.push(uploaded);
       }
 
-      const { id } = await createEnvelope(formData);
+      setUploadProgress(99); // server-side validation + envelope create still pending
+
+      const { id } = await createEnvelopeFromKeys({
+        payload: {
+          folderId,
+          type,
+          title: files[0].name,
+          meta: {
+            timezone: userTimezone,
+          },
+        },
+        uploadedFiles,
+      });
+
+      setUploadProgress(100);
 
       void refreshLimits();
 
@@ -121,6 +137,15 @@ export const EnvelopeDropZoneWrapper = ({
       const errorMessage = match(error.code)
         .with('INVALID_DOCUMENT_FILE', () => t`You cannot upload encrypted PDFs.`)
         .with(
+          'FILE_TOO_LARGE',
+          () => t`File too large. Maximum size is ${APP_DOCUMENT_UPLOAD_SIZE_LIMIT} MB.`,
+        )
+        .with(
+          'UPLOAD_FAILED',
+          () => t`Upload to storage failed. Check your connection and try again.`,
+        )
+        .with('PRESIGN_FAILED', () => t`Could not start upload. Please try again.`)
+        .with(
           AppErrorCode.LIMIT_EXCEEDED,
           () => t`You have reached your document limit for this month. Please upgrade your plan.`,
         )
@@ -138,6 +163,7 @@ export const EnvelopeDropZoneWrapper = ({
       });
     } finally {
       setIsLoading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -231,7 +257,11 @@ export const EnvelopeDropZoneWrapper = ({
           <div className="pointer-events-none flex h-1/2 w-full flex-col items-center justify-center">
             <Loader className="h-12 w-12 animate-spin text-primary" />
             <p className="mt-8 font-medium text-foreground">
-              <Trans>Uploading</Trans>
+              {uploadProgress !== null && uploadProgress < 100 ? (
+                <Trans>Uploading {uploadProgress}%</Trans>
+              ) : (
+                <Trans>Uploading</Trans>
+              )}
             </p>
           </div>
         </div>

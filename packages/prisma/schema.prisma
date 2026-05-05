@@ -489,17 +489,29 @@ enum DocumentDataType {
   BYTES_64
 }
 
+enum DocumentDataNormalizationStatus {
+  pending
+  complete
+  failed
+}
+
 enum DocumentSigningOrder {
   PARALLEL
   SEQUENTIAL
 }
 
 model DocumentData {
-  id           String           @id @default(cuid())
-  type         DocumentDataType
-  data         String
-  initialData  String
-  envelopeItem EnvelopeItem?
+  id                  String                          @id @default(cuid())
+  type                DocumentDataType
+  data                String
+  initialData         String
+  /// Tracks background normalization (flatten layers/forms via pdf-lib).
+  /// Defaults to `complete` so all existing rows are unaffected — they were
+  /// normalized synchronously on upload. New direct-to-S3 uploads start
+  /// `pending` and the internal.normalizePdf job swaps in the normalized
+  /// version, then sets `complete`.
+  normalizationStatus DocumentDataNormalizationStatus @default(complete)
+  envelopeItem        EnvelopeItem?
 }
 
 enum DocumentDistributionMethod {

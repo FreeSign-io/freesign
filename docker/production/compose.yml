@@ -15,10 +15,26 @@ services:
     volumes:
       - database:/var/lib/postgresql/data
 
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - redis:/data
+
   freesign:
     image: ghcr.io/freesign-io/freesign:latest
     depends_on:
       database:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       - PORT=${PORT:-3000}
@@ -63,6 +79,9 @@ services:
       - NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH=${NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH:-/opt/documenso/cert.p12}
       - NEXT_PRIVATE_SIGNING_PASSPHRASE=${NEXT_PRIVATE_SIGNING_PASSPHRASE}
       - NEXT_PUBLIC_USE_INTERNAL_URL_BROWSERLESS=${NEXT_PUBLIC_USE_INTERNAL_URL_BROWSERLESS}
+      - NEXT_PRIVATE_JOBS_PROVIDER=${NEXT_PRIVATE_JOBS_PROVIDER:-bullmq}
+      - NEXT_PRIVATE_REDIS_URL=${NEXT_PRIVATE_REDIS_URL:-redis://redis:6379}
+      - NEXT_PRIVATE_REDIS_PREFIX=${NEXT_PRIVATE_REDIS_PREFIX:-freesign}
     ports:
       - ${PORT:-3000}:${PORT:-3000}
     volumes:
@@ -70,3 +89,4 @@ services:
 
 volumes:
   database:
+  redis:

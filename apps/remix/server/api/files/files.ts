@@ -7,19 +7,24 @@ import { APP_DOCUMENT_UPLOAD_SIZE_LIMIT } from '@documenso/lib/constants/app';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { verifyEmbeddingPresignToken } from '@documenso/lib/server-only/embedding-presign/verify-embedding-presign-token';
 import { putNormalizedPdfFileServerSide } from '@documenso/lib/universal/upload/put-file.server';
-import { getPresignPostUrl } from '@documenso/lib/universal/upload/server-actions';
+import {
+  getPresignPostUrl,
+  getPresignPutUrl,
+} from '@documenso/lib/universal/upload/server-actions';
 import { prisma } from '@documenso/prisma';
 
 import type { HonoEnv } from '../../router';
 import { checkEnvelopeFileAccess, handleEnvelopeItemFileRequest } from './files.helpers';
 import {
   type TGetPresignedPostUrlResponse,
+  type TGetPresignedPutUrlResponse,
   ZGetEnvelopeItemFileDownloadRequestParamsSchema,
   ZGetEnvelopeItemFileRequestParamsSchema,
   ZGetEnvelopeItemFileRequestQuerySchema,
   ZGetEnvelopeItemFileTokenDownloadRequestParamsSchema,
   ZGetEnvelopeItemFileTokenRequestParamsSchema,
   ZGetPresignedPostUrlRequestSchema,
+  ZGetPresignedPutUrlRequestSchema,
   ZUploadPdfRequestSchema,
 } from './files.types';
 import getEnvelopeItemPdfRoute from './routes/get-envelope-item-pdf';
@@ -62,6 +67,36 @@ export const filesRoute = new Hono<HonoEnv>()
       const { key, url } = await getPresignPostUrl(fileName, contentType);
 
       return c.json({ key, url } satisfies TGetPresignedPostUrlResponse);
+    } catch (err) {
+      console.error(err);
+
+      throw new AppError(AppErrorCode.UNKNOWN_ERROR);
+    }
+  })
+  .post('/presigned-put-url', sValidator('json', ZGetPresignedPutUrlRequestSchema), async (c) => {
+    const { fileName, contentType, fileSize } = c.req.valid('json');
+
+    if (contentType !== 'application/pdf') {
+      return c.json({ error: 'Only PDF uploads are supported' }, 400);
+    }
+
+    const MAX_FILE_SIZE = APP_DOCUMENT_UPLOAD_SIZE_LIMIT * 1024 * 1024;
+    if (fileSize > MAX_FILE_SIZE) {
+      return c.json({ error: 'File too large' }, 413);
+    }
+
+    const session = await getOptionalSession(c);
+    const userId = session.isAuthenticated ? session.user.id : undefined;
+
+    try {
+      const { key, url, expiresAt } = await getPresignPutUrl({
+        fileName,
+        contentType,
+        contentLength: fileSize,
+        userId,
+      });
+
+      return c.json({ key, url, expiresAt } satisfies TGetPresignedPutUrlResponse);
     } catch (err) {
       console.error(err);
 
