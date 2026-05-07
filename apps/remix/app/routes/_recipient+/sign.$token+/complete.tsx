@@ -1,7 +1,7 @@
 import { useLingui } from '@lingui/react';
 import { Trans } from '@lingui/react/macro';
 import { DocumentStatus, FieldType, RecipientRole } from '@prisma/client';
-import { CheckCircle2, Clock8, DownloadIcon, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock8, DownloadIcon, Loader2, MailIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { match } from 'ts-pattern';
 
@@ -26,6 +26,7 @@ import { Button } from '@documenso/ui/primitives/button';
 import { EnvelopeDownloadDialog } from '~/components/dialogs/envelope-download-dialog';
 import { ClaimAccount } from '~/components/general/claim-account';
 import { DocumentSigningAuthPageView } from '~/components/general/document-signing/document-signing-auth-page';
+import { PostSelfSignDistributeDialog } from '~/components/general/document-signing/post-self-sign-distribute-dialog';
 
 import type { Route } from './+types/complete';
 
@@ -139,6 +140,13 @@ export default function CompletedSigningPage({ loaderData }: Route.ComponentProp
   if (!isDocumentAccessValid) {
     return <DocumentSigningAuthPageView email={recipientEmail} />;
   }
+
+  const isSelfSignCompletion =
+    signingStatus === 'COMPLETED' &&
+    recipient.role === RecipientRole.SIGNER &&
+    !!user &&
+    user.id === document.userId &&
+    user.email === recipient.email;
 
   return (
     <div
@@ -260,6 +268,19 @@ export default function CompletedSigningPage({ loaderData }: Route.ComponentProp
                   <Button type="button" variant="outline" className="flex-1 md:flex-initial">
                     <DownloadIcon className="mr-2 h-5 w-5" />
                     <Trans>Download</Trans>
+                  </Button>
+                }
+              />
+            )}
+
+            {isSelfSignCompletion && (
+              <PostSelfSignDistributeDialog
+                envelopeId={document.envelopeId}
+                documentTitle={document.title}
+                trigger={
+                  <Button type="button" variant="outline" className="flex-1 md:flex-initial">
+                    <MailIcon className="mr-2 h-5 w-5" />
+                    <Trans>Email a copy</Trans>
                   </Button>
                 }
               />
