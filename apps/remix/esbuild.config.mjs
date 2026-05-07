@@ -301,6 +301,17 @@ const sharedOptions = {
   sourcemap: true,
   logLevel: 'info',
   external: externals,
+  // Use the automatic JSX runtime so files that don't `import React`
+  // still compile (esbuild defaults to the classic transform, which
+  // emits `React.createElement` and crashes at runtime if React is not
+  // in scope). Several email template-components (e.g.
+  // template-image.tsx, template-document-image.tsx) ship JSX without
+  // a React import; they previously broke `send.signing.requested.email`
+  // and other email-rendering background jobs in CI with
+  // `ReferenceError: React is not defined`. The lingui babel plugin
+  // already runs `@babel/preset-react` with `runtime: 'automatic'` for
+  // files it touches, so this matches that behaviour for everything else.
+  jsx: 'automatic',
   // CRITICAL: emitting ESM but bundling code that may keep CJS-style
   // require() calls (esbuild's commonjs transform sometimes emits
   // `__require2(...)`). Without this banner, `require` is undefined in
