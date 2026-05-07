@@ -1,11 +1,5 @@
 import type { Envelope, Recipient } from '@prisma/client';
-import {
-  DocumentStatus,
-  EnvelopeType,
-  RecipientRole,
-  SendStatus,
-  SigningStatus,
-} from '@prisma/client';
+import { DocumentStatus, EnvelopeType } from '@prisma/client';
 import { match } from 'ts-pattern';
 import { z } from 'zod';
 
@@ -252,7 +246,8 @@ export type EnvelopeItemPermissions = {
 
 export const getEnvelopeItemPermissions = (
   envelope: Pick<Envelope, 'completedAt' | 'deletedAt' | 'type' | 'status'>,
-  recipients: Pick<Recipient, 'role' | 'signingStatus' | 'sendStatus'>[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _recipients: Pick<Recipient, 'role' | 'signingStatus' | 'sendStatus'>[],
 ): EnvelopeItemPermissions => {
   // Always reject completed/rejected/deleted envelopes.
   if (
@@ -277,14 +272,6 @@ export const getEnvelopeItemPermissions = (
     };
   }
 
-  const hasActiveRecipients = recipients.some(
-    (recipient) =>
-      recipient.role !== RecipientRole.CC &&
-      (recipient.signingStatus === SigningStatus.SIGNED ||
-        recipient.signingStatus === SigningStatus.REJECTED ||
-        recipient.sendStatus === SendStatus.SENT),
-  );
-
   return match(envelope.status)
     .with(DocumentStatus.DRAFT, () => ({
       canTitleBeChanged: true,
@@ -294,7 +281,11 @@ export const getEnvelopeItemPermissions = (
     .with(DocumentStatus.PENDING, () => ({
       canTitleBeChanged: true,
       canFileBeChanged: false,
-      canOrderBeChanged: !hasActiveRecipients, // Only allow order changes if no active recipients.
+      // Once an envelope is PENDING the document has been distributed to
+      // recipients - the relative ordering of items is part of what they have
+      // been asked to review, so reordering is locked. Title edits remain
+      // allowed because they're cosmetic.
+      canOrderBeChanged: false,
     }))
     .exhaustive();
 };
