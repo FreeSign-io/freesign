@@ -18,11 +18,12 @@ import type { TGetEnvelopeResponse } from '@documenso/trpc/server/envelope-route
 
 import { apiSignin } from '../fixtures/authentication';
 import {
-  clickAddMyselfButton,
   clickEnvelopeEditorStep,
   getRecipientEmailInputs,
   openDocumentEnvelopeEditor,
   openTemplateEnvelopeEditor,
+  setRecipientEmail,
+  setRecipientName,
 } from '../fixtures/envelope-editor';
 import { expectToastTextToBeVisible } from '../fixtures/generic';
 
@@ -175,9 +176,12 @@ test.describe('document editor', () => {
   test('send document via email', async ({ page }) => {
     const surface = await openDocumentEnvelopeEditor(page);
 
-    // Add the current user as a recipient via the UI.
-    await clickAddMyselfButton(surface.root);
-    await expect(getRecipientEmailInputs(surface.root).first()).toHaveValue(surface.userEmail);
+    // Use a recipient email different from the current user, otherwise the
+    // editor swaps the regular Send Document flow for the self-sign UI.
+    const recipientEmail = `recipient-${Date.now()}@test.documenso.com`;
+    await setRecipientName(surface.root, 0, 'Send Document Recipient');
+    await setRecipientEmail(surface.root, 0, recipientEmail);
+    await expect(getRecipientEmailInputs(surface.root).first()).toHaveValue(recipientEmail);
 
     // Navigate to the add fields step and place a signature field.
     await clickEnvelopeEditorStep(surface.root, 'addFields');
@@ -213,9 +217,13 @@ test.describe('document editor', () => {
   test('send document shows validation when signers lack signature fields', async ({ page }) => {
     const surface = await openDocumentEnvelopeEditor(page);
 
-    // Add the current user as a SIGNER recipient via the UI — but do NOT place any fields.
-    await clickAddMyselfButton(surface.root);
-    await expect(getRecipientEmailInputs(surface.root).first()).toHaveValue(surface.userEmail);
+    // Use a recipient email different from the current user, otherwise the
+    // editor swaps the regular Send Document flow for the self-sign UI.
+    // Do NOT place any signature fields so the validation warning fires.
+    const recipientEmail = `recipient-${Date.now()}@test.documenso.com`;
+    await setRecipientName(surface.root, 0, 'Validation Recipient');
+    await setRecipientEmail(surface.root, 0, recipientEmail);
+    await expect(getRecipientEmailInputs(surface.root).first()).toHaveValue(recipientEmail);
 
     // Click the "Send Document" sidebar action without placing signature fields.
     await page.locator('button[title="Send Envelope"]').click();
