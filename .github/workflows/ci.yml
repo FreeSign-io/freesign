@@ -126,3 +126,72 @@ jobs:
 
       - name: Run unit tests (packages/lib)
         run: npm run test -w @documenso/lib
+
+  # Build a deployable artifact for push-to-main only. The deploy workflow
+  # downloads this and ships it to the VPS, replacing the in-place build that
+  # deploy.sh would otherwise run on a 2 GB box (~2-4 minutes of work).
+  #
+  # Output: freesign-bundle-<sha>.tar.gz containing the full apps/remix/build/
+  # tree with the lingui .mjs catalogs pre-copied into
+  # build/server/hono/packages/lib/translations/. The archive is rooted at
+  # apps/remix/build so the VPS can extract straight into that location.
+  build_artifact:
+    name: Build deploy artifact
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/node-install
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Compile lingui catalogs
+        run: npm run translate:compile
+
+      - name: Build Remix app (react-router)
+        run: cd apps/remix && cross-env NODE_ENV=production react-router build
+        env:
+          NODE_ENV: production
+
+      - name: Build server bundle (esbuild)
+        run: cd apps/remix && cross-env NODE_ENV=production node esbuild.config.mjs
+        env:
+          NODE_ENV: production
+
+      - name: Stage server entrypoint + translations into build tree
+        run: |
+          set -euo pipefail
+          cp -f apps/remix/server/main.js apps/remix/build/server/main.js
+          mkdir -p apps/remix/build/server/hono/packages/lib/translations
+          cp -r packages/lib/translations/* \
+            apps/remix/build/server/hono/packages/lib/translations/
+
+      - name: Sanity-check bundle layout
+        run: |
+          set -euo pipefail
+          test -f apps/remix/build/server/main.js
+          test -f apps/remix/build/server/index.js
+          test -f apps/remix/build/server/hono/server/router.js
+          test -f apps/remix/build/server/hono/packages/lib/translations/en/web.mjs
+
+      - name: Pack tarball
+        run: |
+          set -euo pipefail
+          tar -czf freesign-bundle.tar.gz -C apps/remix/build .
+          ls -lh freesign-bundle.tar.gz
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: freesign-bundle
+          path: freesign-bundle.tar.gz
+          retention-days: 7
+          if-no-files-found: error

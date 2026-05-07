@@ -1,7 +1,17 @@
 name: Deploy
 
+# Deploy fires when the CI workflow finishes successfully on main. CI builds
+# the deployable bundle (see ci.yml `build_artifact` job) and uploads it as a
+# `freesign-bundle` artifact. We download it here, SCP it to the VPS, and run
+# deploy.sh in artifact mode so it skips the in-place build.
+#
+# Falls back gracefully: if the artifact download fails or the file is empty,
+# we still SSH in and run deploy.sh without --from-artifact, which makes
+# deploy.sh do the build on the VPS just like before.
 on:
-  push:
+  workflow_run:
+    workflows: ['Continuous Integration']
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -12,12 +22,106 @@ concurrency:
 jobs:
   deploy:
     name: Deploy to freesign.io
+    # Skip deploy when CI failed. workflow_dispatch has no triggering run, so
+    # always allow manual runs through.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment: production
     timeout-minutes: 30
 
     steps:
-      - name: Run deploy.sh on the freesign server
+      - name: Download bundle artifact from CI run
+        id: download
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: freesign-bundle
+          path: ./bundle
+          # Cross-workflow download: pull from the CI workflow run that
+          # triggered this deploy.
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Verify bundle exists
+        id: verify
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: |
+          set -euo pipefail
+          if [[ -s ./bundle/freesign-bundle.tar.gz ]]; then
+            echo "have_bundle=1" >> "$GITHUB_OUTPUT"
+            ls -lh ./bundle/freesign-bundle.tar.gz
+          else
+            echo "have_bundle=0" >> "$GITHUB_OUTPUT"
+            echo "No bundle found - deploy will fall back to building on the VPS." >&2
+          fi
+
+      - name: Compute remote bundle path
+        id: paths
+        if: ${{ steps.verify.outputs.have_bundle == '1' }}
+        run: |
+          set -euo pipefail
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          SHA_SHORT="${SHA:0:12}"
+          echo "remote_path=/opt/freesign/incoming/freesign-bundle-${SHA_SHORT}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      # SCP the tarball into /opt/freesign/incoming/. The remote dir must
+      # exist and be writable by the deploy SSH user. See PR description for
+      # the one-time SRE setup.
+      - name: Upload bundle to VPS
+        if: ${{ steps.verify.outputs.have_bundle == '1' }}
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+          source: ./bundle/freesign-bundle.tar.gz
+          target: /opt/freesign/incoming/
+          strip_components: 1
+          overwrite: true
+
+      - name: Rename uploaded bundle to sha-tagged path
+        if: ${{ steps.verify.outputs.have_bundle == '1' }}
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+          command_timeout: 2m
+          script_stop: true
+          script: |
+            set -euo pipefail
+            mv -f /opt/freesign/incoming/freesign-bundle.tar.gz \
+                  ${{ steps.paths.outputs.remote_path }}
+            ls -lh ${{ steps.paths.outputs.remote_path }}
+
+      - name: Run deploy.sh on the freesign server (artifact mode)
+        if: ${{ steps.verify.outputs.have_bundle == '1' }}
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+          command_timeout: 30m
+          script_stop: true
+          script: |
+            set -euo pipefail
+            # Pin git checkout to the SHA the artifact was built from. Without
+            # this, a commit landing between CI build and deploy would leave
+            # the bundle (artifact's SHA) inconsistent with source on disk
+            # (newer SHA), and prisma migrate would run against the newer
+            # schema.
+            sudo env DEPLOY_ARTIFACT_PATH="${{ steps.paths.outputs.remote_path }}" \
+              /opt/freesign/app/deploy.sh "${{ github.event.workflow_run.head_sha }}"
+
+      - name: Run deploy.sh on the freesign server (build-on-VPS fallback)
+        # Falls through when:
+        #   - CI didn't produce an artifact (e.g. cache miss + future failure)
+        #   - manual workflow_dispatch (no upstream workflow_run, no artifact)
+        if: ${{ github.event_name == 'workflow_dispatch' || steps.verify.outputs.have_bundle != '1' }}
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_SSH_HOST }}
