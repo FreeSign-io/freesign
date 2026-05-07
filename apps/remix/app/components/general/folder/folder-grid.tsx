@@ -102,11 +102,11 @@ export const FolderGrid = ({ type, parentId }: FolderGridProps) => {
         </div>
 
         <div className="flex gap-4 sm:flex-row sm:justify-end">
+          <EnvelopeUploadButton type={type} folderId={parentId || undefined} />
+
           {type === FolderType.DOCUMENT && (
             <SelfSignUploadButton folderId={parentId || undefined} />
           )}
-
-          <EnvelopeUploadButton type={type} folderId={parentId || undefined} />
 
           {/* If you delete this, delete the component as well. */}
           {organisation.organisationClaim.flags.allowLegacyEnvelopes && (
