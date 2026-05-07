@@ -152,7 +152,8 @@ export const PostSelfSignDistributeDialog = ({
                           <Button
                             type="button"
                             variant="ghost"
-                            size="icon"
+                            size="sm"
+                            className="px-2"
                             onClick={() => remove(index)}
                             aria-label={t`Remove email`}
                           >
