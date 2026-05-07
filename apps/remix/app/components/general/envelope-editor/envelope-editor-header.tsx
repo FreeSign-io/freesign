@@ -15,7 +15,7 @@ import { Link } from 'react-router';
 import { match } from 'ts-pattern';
 
 import { useCurrentEnvelopeEditor } from '@documenso/lib/client-only/providers/envelope-editor-provider';
-import { useSession } from '@documenso/lib/client-only/providers/session';
+import { useOptionalSession } from '@documenso/lib/client-only/providers/session';
 import {
   getEnvelopeItemPermissions,
   mapSecondaryIdToTemplateId,
@@ -39,7 +39,7 @@ import { SignNowButton } from './sign-now-button';
 export default function EnvelopeEditorHeader() {
   const { t } = useLingui();
 
-  const { user } = useSession();
+  const { sessionData } = useOptionalSession();
 
   const {
     envelope,
@@ -53,10 +53,14 @@ export default function EnvelopeEditorHeader() {
     flushAutosave,
   } = useCurrentEnvelopeEditor();
 
+  const currentUserEmail = sessionData?.user.email;
+
   const isSelfSign =
+    !isEmbedded &&
     isDocument &&
+    Boolean(currentUserEmail) &&
     envelope.recipients.length === 1 &&
-    envelope.recipients[0].email === user.email &&
+    envelope.recipients[0].email === currentUserEmail &&
     envelope.recipients[0].role === RecipientRole.SIGNER;
 
   const {

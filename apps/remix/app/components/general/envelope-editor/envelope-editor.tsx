@@ -25,7 +25,7 @@ import { match } from 'ts-pattern';
 
 import type { EnvelopeEditorStep } from '@documenso/lib/client-only/providers/envelope-editor-provider';
 import { useCurrentEnvelopeEditor } from '@documenso/lib/client-only/providers/envelope-editor-provider';
-import { useSession } from '@documenso/lib/client-only/providers/session';
+import { useOptionalSession } from '@documenso/lib/client-only/providers/session';
 import { mapSecondaryIdToTemplateId } from '@documenso/lib/utils/envelope';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
@@ -80,13 +80,14 @@ export const EnvelopeEditor = () => {
 
   const navigate = useNavigate();
 
-  const { user } = useSession();
+  const { sessionData } = useOptionalSession();
 
   const {
     envelope,
     editorConfig,
     isDocument,
     isTemplate,
+    isEmbedded,
     relativePath,
     navigateToStep,
     syncEnvelope,
@@ -94,10 +95,14 @@ export const EnvelopeEditor = () => {
     resetForms,
   } = useCurrentEnvelopeEditor();
 
+  const currentUserEmail = sessionData?.user.email;
+
   const isSelfSign =
+    !isEmbedded &&
     isDocument &&
+    Boolean(currentUserEmail) &&
     envelope.recipients.length === 1 &&
-    envelope.recipients[0].email === user.email &&
+    envelope.recipients[0].email === currentUserEmail &&
     envelope.recipients[0].role === RecipientRole.SIGNER;
 
   const [searchParams, setSearchParams] = useSearchParams();
