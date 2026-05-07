@@ -88,8 +88,10 @@ export const EnvelopesBulkMoveDialog = ({
     if (open) {
       setSearchTerm('');
 
+      // Schema requires `string | null`; coerce undefined to null to keep
+      // the form in a valid, predictable state when reopened at the root.
       form.reset({
-        folderId: currentFolderId,
+        folderId: currentFolderId ?? null,
       });
     }
   }, [open, currentFolderId]);

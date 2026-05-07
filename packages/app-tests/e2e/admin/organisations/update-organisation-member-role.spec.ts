@@ -168,12 +168,18 @@ test('[ADMIN]: promote manager to owner', async ({ page }) => {
   // Click Update button
   await page.getByRole('dialog').getByRole('button', { name: 'Update' }).click();
 
-  // Wait for dialog to close (indicates success)
+  // Wait for dialog to close (indicates success).
+  // Note: the dialog component triggers navigate(0) on success which reloads
+  // the page; rather than racing it with our own page.reload(), wait for the
+  // post-reload state by polling the row directly.
   await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10_000 });
 
-  // Reload and verify the change
-  await page.reload();
-  await expect(managerRow.getByRole('status').filter({ hasText: 'Owner' })).toBeVisible();
+  // The dialog's navigate(0) reload races our assertions; wait for the DOM
+  // to settle and assert the role badge with a generous timeout.
+  await page.waitForLoadState('load');
+  await expect(managerRow.getByRole('status').filter({ hasText: 'Owner' })).toBeVisible({
+    timeout: 10_000,
+  });
 });
 
 test('[ADMIN]: promote admin member to owner', async ({ page }) => {
