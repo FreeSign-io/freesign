@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { Trans, useLingui } from '@lingui/react/macro';
-import { DocumentStatus, EnvelopeType, TemplateType } from '@prisma/client';
+import { DocumentStatus, EnvelopeType, RecipientRole, TemplateType } from '@prisma/client';
 import {
   AlertTriangleIcon,
   Building2Icon,
@@ -15,6 +15,7 @@ import { Link } from 'react-router';
 import { match } from 'ts-pattern';
 
 import { useCurrentEnvelopeEditor } from '@documenso/lib/client-only/providers/envelope-editor-provider';
+import { useSession } from '@documenso/lib/client-only/providers/session';
 import {
   getEnvelopeItemPermissions,
   mapSecondaryIdToTemplateId,
@@ -33,9 +34,12 @@ import { EnvelopeEditorSettingsDialog } from '~/components/general/envelope-edit
 
 import { TemplateDirectLinkBadge } from '../template/template-direct-link-badge';
 import { EnvelopeItemTitleInput } from './envelope-editor-title-input';
+import { SignNowButton } from './sign-now-button';
 
 export default function EnvelopeEditorHeader() {
   const { t } = useLingui();
+
+  const { user } = useSession();
 
   const {
     envelope,
@@ -48,6 +52,12 @@ export default function EnvelopeEditorHeader() {
     editorConfig,
     flushAutosave,
   } = useCurrentEnvelopeEditor();
+
+  const isSelfSign =
+    isDocument &&
+    envelope.recipients.length === 1 &&
+    envelope.recipients[0].email === user.email &&
+    envelope.recipients[0].role === RecipientRole.SIGNER;
 
   const {
     embedded,
@@ -199,7 +209,11 @@ export default function EnvelopeEditorHeader() {
             />
           )}
 
-          {match({ isEmbedded, isDocument, isTemplate, allowDistributing })
+          {match({ isEmbedded, isDocument, isTemplate, allowDistributing, isSelfSign })
+            .with(
+              { isEmbedded: false, isDocument: true, allowDistributing: true, isSelfSign: true },
+              () => <SignNowButton variant="header" />,
+            )
             .with({ isEmbedded: false, isDocument: true, allowDistributing: true }, () => (
               <>
                 <EnvelopeDistributeDialog
