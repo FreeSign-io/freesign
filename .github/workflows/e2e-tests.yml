@@ -12,10 +12,7 @@ concurrency:
 jobs:
   e2e_tests:
     name: 'E2E Tests'
-    timeout-minutes: 60
-    # GitHub-hosted runner. Was `warp-ubuntu-2204-x64-8x` (a Warp Build
-    # third-party runner from the upstream Documenso config) — FreeSign-io
-    # doesn't have Warp configured, so jobs sat queued forever.
+    timeout-minutes: 30
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -36,13 +33,16 @@ jobs:
       - name: Seed the database
         run: npm run prisma:seed
 
-      - name: Install playwright browsers
-        run: npx playwright install --with-deps
+      - name: Install playwright system deps
+        # Browsers are restored from cache by the composite action above;
+        # `install-deps` only installs the apt packages those browsers need
+        # to actually launch (libnss3, libatk1.0, etc). Faster than
+        # `install --with-deps` which would re-download the browsers too.
+        run: npx playwright install-deps
 
       - name: Run Playwright tests
         run: npm run ci
         env:
-          # Needed since we use next start which will set the NODE_ENV to production
           NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH: './example/cert.p12'
           DANGEROUS_BYPASS_RATE_LIMITS: 'true'
 

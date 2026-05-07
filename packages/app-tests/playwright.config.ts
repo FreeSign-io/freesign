@@ -3,16 +3,23 @@ import dotenv from 'dotenv';
 import os from 'os';
 import path from 'path';
 
-function calculateWorkers() {
+function calculateUiWorkers() {
+  // CI: GitHub-hosted Linux runners are 2 vCPU. The previous heuristic
+  // (cpus - 2, then /2) yields 1 worker, which serialises ~200 UI
+  // tests and blows wall-clock to ~20min. UI tests are dominated by
+  // I/O against the local server, not CPU - oversubscribing 2 vCPU
+  // with 3 browser workers keeps them fed. If runners get bigger,
+  // bump this number.
+  if (process.env.CI) {
+    return 3;
+  }
+
+  // Local: leave 2 cores for the system, 1 worker per 2 cores, capped
+  // at 6 to avoid drowning a laptop.
   const total = os.cpus().length;
-
-  // Reserve 2 cores for the system
   const usable = Math.max(total - 2, 1);
-
-  // 1 worker per 2 cores, minimum 1
   const workers = Math.max(Math.floor(usable / 2), 1);
 
-  // Max 6 workers
   return Math.min(workers, 6);
 }
 
@@ -31,11 +38,15 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   workers: 10, // See Projects where 10 is utilized for API tests. We're not running 10 workers for UI tests.
-  maxFailures: process.env.CI ? 1 : undefined,
+  // Halting on the first failure made sense when retries were cheap;
+  // with retries down to 2 it just throws away signal. Bound with a
+  // double-digit so a runaway broken main can't burn the timeout.
+  maxFailures: process.env.CI ? 10 : undefined,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 4 : 1,
+  // 4 retries × 60s timeout = 5min budget per flake; 2 is plenty for a
+  // genuinely flaky test and keeps total wall-clock predictable.
+  retries: process.env.CI ? 2 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html'], ['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -102,7 +113,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1200 },
       },
-      workers: calculateWorkers(),
+      workers: calculateUiWorkers(),
     },
 
     // {
