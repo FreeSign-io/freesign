@@ -18,6 +18,16 @@ export const distributeEnvelopeMeta: TrpcRouteMeta = {
 
 export const ZDistributeEnvelopeRequestSchema = z.object({
   envelopeId: z.string().describe('The ID of the envelope to send.'),
+  /**
+   * Whether to email recipients about the signing request.
+   *
+   * Default behaviour (when omitted) preserves backward compatibility: emails
+   * fire if the team has signing-request emails enabled, otherwise they don't.
+   * Pass `false` explicitly to skip the email loop entirely — useful for
+   * self-sign flows where the sender is the only recipient and is about to
+   * be redirected to the signing page directly.
+   */
+  sendEmail: z.boolean().optional(),
   meta: ZDocumentMetaUpdateSchema.pick({
     subject: true,
     message: true,

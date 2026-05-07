@@ -15,11 +15,12 @@ export const distributeEnvelopeRoute = authenticatedProcedure
   .output(ZDistributeEnvelopeResponseSchema)
   .mutation(async ({ input, ctx }) => {
     const { teamId } = ctx;
-    const { envelopeId, meta = {} } = input;
+    const { envelopeId, sendEmail, meta = {} } = input;
 
     ctx.logger.info({
       input: {
         envelopeId,
+        sendEmail,
       },
     });
 
@@ -52,6 +53,7 @@ export const distributeEnvelopeRoute = authenticatedProcedure
         id: envelopeId,
       },
       teamId,
+      sendEmail,
       requestMetadata: ctx.metadata,
     });
 
