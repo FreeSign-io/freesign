@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { EnvelopeType } from '@prisma/client';
+import { EnvelopeType, RecipientRole } from '@prisma/client';
 import { motion } from 'framer-motion';
 import {
   ArrowLeftIcon,
@@ -25,6 +25,7 @@ import { match } from 'ts-pattern';
 
 import type { EnvelopeEditorStep } from '@documenso/lib/client-only/providers/envelope-editor-provider';
 import { useCurrentEnvelopeEditor } from '@documenso/lib/client-only/providers/envelope-editor-provider';
+import { useSession } from '@documenso/lib/client-only/providers/session';
 import { mapSecondaryIdToTemplateId } from '@documenso/lib/utils/envelope';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
@@ -44,6 +45,7 @@ import { EnvelopeEditorFieldsPage } from './envelope-editor-fields-page';
 import EnvelopeEditorHeader from './envelope-editor-header';
 import { EnvelopeEditorPreviewPage } from './envelope-editor-preview-page';
 import { EnvelopeEditorUploadPage } from './envelope-editor-upload-page';
+import { SignNowButton } from './sign-now-button';
 
 type EnvelopeEditorStepData = {
   id: string;
@@ -78,6 +80,8 @@ export const EnvelopeEditor = () => {
 
   const navigate = useNavigate();
 
+  const { user } = useSession();
+
   const {
     envelope,
     editorConfig,
@@ -89,6 +93,12 @@ export const EnvelopeEditor = () => {
     flushAutosave,
     resetForms,
   } = useCurrentEnvelopeEditor();
+
+  const isSelfSign =
+    isDocument &&
+    envelope.recipients.length === 1 &&
+    envelope.recipients[0].email === user.email &&
+    envelope.recipients[0].role === RecipientRole.SIGNER;
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -378,7 +388,11 @@ export const EnvelopeEditor = () => {
               />
             )}
 
-            {isDocument && allowDistributing && (
+            {isDocument && allowDistributing && isSelfSign && (
+              <SignNowButton variant="sidebar" minimized={minimizeLeftSidebar} />
+            )}
+
+            {isDocument && allowDistributing && !isSelfSign && (
               <>
                 <EnvelopeDistributeDialog
                   documentRootPath={relativePath.documentRootPath}

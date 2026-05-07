@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
@@ -27,6 +29,14 @@ export type DocumentUploadButtonProps = {
   type: EnvelopeType;
   internalVersion: '1' | '2';
   maxFiles?: number;
+  /**
+   * Optional label override. When set, replaces the default
+   * "Upload Document" / "Upload Template" heading. Pass a
+   * Lingui message descriptor so it stays translatable.
+   */
+  label?: MessageDescriptor;
+  /** Optional icon override; defaults to the Upload icon. */
+  icon?: ReactNode;
   [key: string]: unknown;
 };
 
@@ -41,6 +51,8 @@ export const DocumentUploadButton = ({
   internalVersion,
 
   maxFiles,
+  label,
+  icon,
   ...props
 }: DocumentUploadButtonProps) => {
   const { _ } = useLingui();
@@ -99,12 +111,15 @@ export const DocumentUploadButton = ({
     );
   }
 
+  const resolvedLabel = disabled ? _(disabledMessage) : label ? _(label) : _(heading[type]);
+  const resolvedIcon = icon ?? <Upload className="h-4 w-4" />;
+
   return (
     <Button loading={loading} aria-disabled={disabled} {...getRootProps()} {...props}>
       <div className="flex items-center gap-2">
         <input data-testid="document-upload-input" {...getInputProps()} />
-        {!loading && <Upload className="h-4 w-4" />}
-        {disabled ? _(disabledMessage) : _(heading[type])}
+        {!loading && resolvedIcon}
+        {resolvedLabel}
       </div>
     </Button>
   );

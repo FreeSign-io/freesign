@@ -20,6 +20,7 @@ import { FolderCard, FolderCardEmpty } from '~/components/general/folder/folder-
 import { useCurrentTeam } from '~/providers/team';
 
 import { EnvelopeUploadButton } from '../envelope/envelope-upload-button';
+import { SelfSignUploadButton } from '../envelope/self-sign-upload-button';
 
 export type FolderGridProps = {
   type: FolderType;
@@ -101,6 +102,10 @@ export const FolderGrid = ({ type, parentId }: FolderGridProps) => {
         </div>
 
         <div className="flex gap-4 sm:flex-row sm:justify-end">
+          {type === FolderType.DOCUMENT && (
+            <SelfSignUploadButton folderId={parentId || undefined} />
+          )}
+
           <EnvelopeUploadButton type={type} folderId={parentId || undefined} />
 
           {/* If you delete this, delete the component as well. */}
