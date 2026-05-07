@@ -1205,13 +1205,20 @@ test.describe('Find Documents UI - Sender Filter', () => {
     // Unfiltered: 3 docs total
     await checkDocumentTabCount(page, 'All', 3);
 
-    // Filter by member1
+    // Filter by member1. `exact: true` avoids the option matcher accidentally
+    // matching multiple senders that share a name prefix from the seeded URL.
     await page.locator('button').filter({ hasText: 'Sender: All' }).click();
-    await page.getByRole('option', { name: member1.name ?? '' }).click();
+    await page.getByRole('option', { name: member1.name ?? '', exact: true }).click();
     await page.waitForURL(/senderIds/);
+
+    // Wait for the table to settle on the filtered link before asserting
+    // the count - otherwise we can race against the React Query refetch
+    // and read a stale "Showing N results." value.
+    await expect(page.getByRole('link', { name: 'Member1 Sent Doc' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Owner Sent Doc' })).not.toBeVisible();
+    await expect(page.getByRole('link', { name: 'Member2 Draft Doc' })).not.toBeVisible();
 
     // Should only show member1's doc
     await checkDocumentTabCount(page, 'All', 1);
-    await expect(page.getByRole('link', { name: 'Member1 Sent Doc' })).toBeVisible();
   });
 });
