@@ -7,17 +7,52 @@
 # Idempotent: re-runs cheaply when there are no source changes (npm ci is the
 # slow path; build is always run).
 #
+# Two deploy modes:
+#   1. In-place build (default): runs translate:compile + react-router build +
+#      esbuild on the VPS. Slow on a 2 GB box (~2-4 min) but self-contained.
+#   2. Artifact mode: when DEPLOY_ARTIFACT_PATH or --from-artifact is set, the
+#      script extracts a prebuilt apps/remix/build/ tarball produced by CI and
+#      skips the build steps entirely. Sub-1-minute deploy on the VPS.
+#
 # Usage:
-#   sudo /opt/freesign/app/deploy.sh           # latest from origin/main
-#   sudo /opt/freesign/app/deploy.sh <ref>     # specific tag/branch/sha
+#   sudo /opt/freesign/app/deploy.sh                          # build on VPS (fallback)
+#   sudo /opt/freesign/app/deploy.sh <ref>                    # specific tag/branch/sha
+#   sudo DEPLOY_ARTIFACT_PATH=/path/to/bundle.tar.gz \
+#        /opt/freesign/app/deploy.sh                          # use prebuilt bundle
+#   sudo /opt/freesign/app/deploy.sh --from-artifact <path>   # same, via arg
 
 set -euo pipefail
 
 REPO_DIR="${REPO_DIR:-/opt/freesign/app}"
 ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
-BRANCH="${1:-origin/main}"
 SERVICE="${SERVICE:-freesign}"
 NODE_HEAP_MB="${NODE_HEAP_MB:-3072}"
+
+# --- Argument parsing ------------------------------------------------------
+# Backward compatible: a positional arg that is NOT a flag is still the git
+# ref to deploy (origin/main, a tag, a sha). `--from-artifact <path>` is the
+# new flag; alternately set DEPLOY_ARTIFACT_PATH in the environment.
+ARTIFACT_PATH="${DEPLOY_ARTIFACT_PATH:-}"
+BRANCH=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --from-artifact)
+      ARTIFACT_PATH="${2:-}"
+      shift 2
+      ;;
+    --from-artifact=*)
+      ARTIFACT_PATH="${1#--from-artifact=}"
+      shift
+      ;;
+    *)
+      if [[ -z "$BRANCH" ]]; then
+        BRANCH="$1"
+      fi
+      shift
+      ;;
+  esac
+done
+BRANCH="${BRANCH:-origin/main}"
 
 log() { printf '\n\033[1;32m[deploy]\033[0m %s\n' "$*"; }
 warn() { printf '\n\033[1;33m[deploy:warn]\033[0m %s\n' "$*" >&2; }
@@ -42,14 +77,18 @@ DISK_SHA=$(sha256sum "$SCRIPT_PATH" | awk '{print $1}')
 MEM_SHA="${DEPLOY_SCRIPT_SHA:-unset}"
 if [[ "$MEM_SHA" == "unset" ]]; then
   # First run: re-exec with the SHA env var so the next invocation can
-  # detect a script swap.
+  # detect a script swap. Pass through the resolved BRANCH and ARTIFACT_PATH
+  # explicitly: we already consumed flags above, so $@ is no longer the
+  # original arg list.
   export DEPLOY_SCRIPT_SHA="$DISK_SHA"
-  exec "$SCRIPT_PATH" "$@"
+  export DEPLOY_ARTIFACT_PATH="$ARTIFACT_PATH"
+  exec "$SCRIPT_PATH" "$BRANCH"
 elif [[ "$MEM_SHA" != "$DISK_SHA" ]]; then
   # On-disk script changed since this process started. Re-exec.
   log "deploy.sh changed on disk after fetch - re-executing new script"
   export DEPLOY_SCRIPT_SHA="$DISK_SHA"
-  exec "$SCRIPT_PATH" "$@"
+  export DEPLOY_ARTIFACT_PATH="$ARTIFACT_PATH"
+  exec "$SCRIPT_PATH" "$BRANCH"
 fi
 
 # Decide whether npm ci is needed: only if lockfile or top-level package.json changed
@@ -80,54 +119,81 @@ NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
 NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
   npx prisma generate --schema packages/prisma/schema.prisma
 
-# Build pipeline. We avoid `npm run build` (turbo) because it also builds
-# apps/docs which we don't host, and turbo's typecheck step OOMs on a 2 GB VPS.
-# Instead, run only the steps we need for the Remix server.
+# Build pipeline. Two paths:
+#   1. Artifact mode (DEPLOY_ARTIFACT_PATH set): extract a prebuilt
+#      apps/remix/build/ tarball produced by CI. Skips translate:compile,
+#      react-router build, and esbuild entirely - those already ran on the
+#      runner. ~2-4 min saved on a 2 GB VPS.
+#   2. In-place build (fallback): runs the same steps the old script did.
 #
-# We intentionally:
-#   - Run `translate:compile` only (skip `translate:extract` — that's a developer
-#     step; on prod the source is already in sync with the committed .po files).
-#   - Invoke the `react-router` binary directly (NOT `npm run build:app`), which
-#     skips the `npm run typecheck` (`react-router typegen && tsc`) step. CI
-#     already typechecks the same SHA before this script runs, so re-running tsc
-#     here just burns ~78s on a 2 GB VPS.
-#   - Run translate:compile and the react-router build in parallel — they're
+# We avoid `npm run build` (turbo) because it also builds apps/docs which we
+# don't host, and turbo's typecheck step OOMs on a 2 GB VPS. The in-place
+# branch keeps the surgical step list:
+#   - Run `translate:compile` only (skip `translate:extract` - that's a
+#     developer step; on prod the source is already in sync with the
+#     committed .po files).
+#   - Invoke the `react-router` binary directly (NOT `npm run build:app`),
+#     which skips the `npm run typecheck` (`react-router typegen && tsc`)
+#     step. CI already typechecks the same SHA before this script runs, so
+#     re-running tsc here just burns ~78s on a 2 GB VPS.
+#   - Run translate:compile and the react-router build in parallel - they're
 #     independent.
 
-log "Translate (compile) + build app (parallel)"
+if [[ -n "$ARTIFACT_PATH" ]]; then
+  [[ -f "$ARTIFACT_PATH" ]] \
+    || die "DEPLOY_ARTIFACT_PATH=$ARTIFACT_PATH not found on disk"
 
-# Background: lingui compile (writes .mjs catalogs from .po files)
-( cd "$REPO_DIR" \
-  && NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" npm run translate:compile ) &
-TRANSLATE_PID=$!
+  log "Artifact mode: extracting $ARTIFACT_PATH into apps/remix/build/"
 
-# Background: react-router build (Remix client + server bundle).
-# Call the hoisted binary directly to avoid `npm run build:app`, which prepends
-# a typecheck step. The binary is at the workspace root via npm hoisting.
-( cd "$REPO_DIR/apps/remix" \
-  && NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" NODE_ENV=production \
-     "$REPO_DIR/node_modules/.bin/react-router" build ) &
-BUILD_PID=$!
+  # Stop the service before swapping files so we don't run a half-extracted
+  # bundle. The post-build restart further down brings it back up.
+  systemctl stop "$SERVICE" || true
 
-wait $TRANSLATE_PID || die "translate:compile failed"
-wait $BUILD_PID    || die "react-router build failed"
+  # Wipe the previous build tree to avoid stale files lingering when the new
+  # bundle has a different layout. The tarball is rooted at apps/remix/build,
+  # so we extract straight into that directory.
+  rm -rf "$REPO_DIR/apps/remix/build"
+  mkdir -p "$REPO_DIR/apps/remix/build"
+  tar -xzf "$ARTIFACT_PATH" -C "$REPO_DIR/apps/remix/build"
 
-cd "$REPO_DIR/apps/remix"
+  cd "$REPO_DIR/apps/remix"
+else
+  log "Translate (compile) + build app (parallel)"
 
-log "Build server (esbuild)"
-NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
-  npx cross-env NODE_ENV=production node esbuild.config.mjs
+  # Background: lingui compile (writes .mjs catalogs from .po files)
+  ( cd "$REPO_DIR" \
+    && NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" npm run translate:compile ) &
+  TRANSLATE_PID=$!
 
-# Copy entrypoint into build dir (matches what the official build.sh does).
-cp -f server/main.js build/server/main.js
+  # Background: react-router build (Remix client + server bundle).
+  # Call the hoisted binary directly to avoid `npm run build:app`, which
+  # prepends a typecheck step. The binary is at the workspace root via npm
+  # hoisting.
+  ( cd "$REPO_DIR/apps/remix" \
+    && NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" NODE_ENV=production \
+       "$REPO_DIR/node_modules/.bin/react-router" build ) &
+  BUILD_PID=$!
 
-# esbuild bundles the TS source into a single file at
-# build/server/hono/server/router.js. The Hono runtime imports compiled
-# Lingui catalogs via `import(new URL('../packages/lib/translations/...',
-# import.meta.url))`, which resolves relative to the bundle. Mirror the
-# .mjs catalogs into that location.
-mkdir -p build/server/hono/packages/lib/translations
-cp -r "$REPO_DIR"/packages/lib/translations/* build/server/hono/packages/lib/translations/
+  wait $TRANSLATE_PID || die "translate:compile failed"
+  wait $BUILD_PID    || die "react-router build failed"
+
+  cd "$REPO_DIR/apps/remix"
+
+  log "Build server (esbuild)"
+  NODE_OPTIONS="--max-old-space-size=$NODE_HEAP_MB" \
+    npx cross-env NODE_ENV=production node esbuild.config.mjs
+
+  # Copy entrypoint into build dir (matches what the official build.sh does).
+  cp -f server/main.js build/server/main.js
+
+  # esbuild bundles the TS source into a single file at
+  # build/server/hono/server/router.js. The Hono runtime imports compiled
+  # Lingui catalogs via `import(new URL('../packages/lib/translations/...',
+  # import.meta.url))`, which resolves relative to the bundle. Mirror the
+  # .mjs catalogs into that location.
+  mkdir -p build/server/hono/packages/lib/translations
+  cp -r "$REPO_DIR"/packages/lib/translations/* build/server/hono/packages/lib/translations/
+fi
 
 [[ -f build/server/main.js ]] || die "build/server/main.js missing after build"
 [[ -f build/server/index.js ]] || die "build/server/index.js missing after build"
