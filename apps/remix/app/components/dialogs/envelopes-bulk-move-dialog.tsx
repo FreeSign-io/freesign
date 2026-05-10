@@ -104,11 +104,16 @@ export const EnvelopesBulkMoveDialog = ({
         envelopeType,
       });
 
-      // Invalidate the appropriate query based on envelope type.
+      // Fire-and-forget invalidation. Awaiting the refetch before showing the
+      // toast and closing the dialog meant that on a slow CI database the user
+      // (and the e2e tests) had to wait the full refetch latency before seeing
+      // any feedback, which made the toast assertion exceed its 5s timeout.
+      // The data will still update once the refetch resolves; we just stop
+      // blocking the UI on it.
       if (isDocument) {
-        await trpcUtils.document.findDocumentsInternal.invalidate();
+        void trpcUtils.document.findDocumentsInternal.invalidate();
       } else {
-        await trpcUtils.template.findTemplates.invalidate();
+        void trpcUtils.template.findTemplates.invalidate();
       }
 
       toast({
