@@ -173,11 +173,16 @@ test.describe('Find Documents UI - Personal Context', () => {
     await page.getByPlaceholder('Search documents...').fill('Quarterly');
     await page.waitForURL(/query=Quarterly/);
 
-    await checkDocumentTabCount(page, 'All', 1);
+    // Wait for the table to settle on the filtered rows before reading
+    // "Showing N results." - otherwise we race the debounced query input
+    // and React Query refetch and read a stale count from the previous
+    // (unfiltered) result set. Same pattern as the sender-filter test.
     await expect(page.getByRole('link', { name: 'Quarterly Report 2024' })).toBeVisible();
     await expect(
       page.getByRole('link', { name: 'Annual Budget Plan', exact: true }),
     ).not.toBeVisible();
+
+    await checkDocumentTabCount(page, 'All', 1);
   });
 
   test('should not show deleted documents', async ({ page }) => {
