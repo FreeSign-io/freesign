@@ -17,6 +17,7 @@ import {
 } from './field-generic-items';
 import type { FieldToRender, RenderFieldElementOptions } from './field-renderer';
 import { calculateFieldPosition } from './field-renderer';
+import { fitFontSize } from './fit-font-size';
 
 const DEFAULT_TEXT_X_PADDING = 6;
 
@@ -112,6 +113,18 @@ const upsertFieldText = (field: FieldToRender, options: RenderFieldElementOption
     width: fieldWidth - DEFAULT_TEXT_X_PADDING * 2,
     height: fieldHeight,
   } satisfies Partial<Konva.TextConfig>);
+
+  // Auto-shrink the font so the full filled value fits within the field box,
+  // mirroring the live signing UI. Skip when there's no value to render
+  // (placeholder/label rendering keeps its configured size).
+  if (field.inserted && textToRender) {
+    fitFontSize({
+      textNode: fieldText,
+      maxWidth: fieldWidth - DEFAULT_TEXT_X_PADDING * 2,
+      maxHeight: fieldHeight,
+      startSize: textFontSize,
+    });
+  }
 
   return fieldText;
 };

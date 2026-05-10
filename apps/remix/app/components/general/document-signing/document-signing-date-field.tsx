@@ -1,9 +1,12 @@
+import { useRef } from 'react';
+
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { Trans } from '@lingui/react/macro';
 import { Loader } from 'lucide-react';
 import { useRevalidator } from 'react-router';
 
+import { useFitFontSize } from '@documenso/lib/client-only/hooks/use-fit-font-size';
 import {
   DEFAULT_DOCUMENT_DATE_FORMAT,
   convertToLocalSystemFormat,
@@ -61,6 +64,16 @@ export const DocumentSigningDateField = ({
 
   const localDateString = convertToLocalSystemFormat(field.customText, dateFormat, timezone);
   const isDifferentTime = field.inserted && localDateString !== field.customText;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const fontSize = useFitFontSize({
+    containerRef,
+    textRef,
+    text: localDateString,
+    maxFontRem: 0.825,
+    minFontRem: 0.5,
+  });
   const tooltipText = _(
     msg`"${field.customText}" will appear on the document as it has a timezone of "${timezone || ''}".`,
   );
@@ -148,15 +161,17 @@ export const DocumentSigningDateField = ({
       )}
 
       {field.inserted && (
-        <div className="flex h-full w-full items-center">
+        <div ref={containerRef} className="flex h-full w-full items-center overflow-hidden">
           <p
+            ref={textRef}
             className={cn(
-              'text-foreground w-full whitespace-nowrap text-left text-[clamp(0.425rem,25cqw,0.825rem)] duration-200',
+              'text-foreground w-full whitespace-nowrap text-left leading-tight duration-200',
               {
                 '!text-center': parsedFieldMeta?.textAlign === 'center',
                 '!text-right': parsedFieldMeta?.textAlign === 'right',
               },
             )}
+            style={{ fontSize: `${fontSize}rem` }}
           >
             {localDateString}
           </p>

@@ -1,5 +1,8 @@
+import { useRef } from 'react';
+
 import { Loader } from 'lucide-react';
 
+import { useFitFontSize } from '@documenso/lib/client-only/hooks/use-fit-font-size';
 import { cn } from '@documenso/ui/lib/utils';
 
 export const DocumentSigningFieldsLoader = () => {
@@ -33,16 +36,31 @@ export const DocumentSigningFieldsInserted = ({
   children,
   textAlign = 'left',
 }: DocumentSigningFieldsInsertedProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  const text = typeof children === 'string' || typeof children === 'number' ? String(children) : '';
+
+  const fontSize = useFitFontSize({
+    containerRef,
+    textRef,
+    text,
+    maxFontRem: 0.825,
+    minFontRem: 0.5,
+  });
+
   return (
-    <div className="flex h-full w-full items-center overflow-hidden">
+    <div ref={containerRef} className="flex h-full w-full items-center overflow-hidden">
       <p
+        ref={textRef}
         className={cn(
-          'text-foreground w-full whitespace-pre-wrap text-left text-[clamp(0.425rem,25cqw,0.825rem)] duration-200',
+          'text-foreground w-full whitespace-pre-wrap break-words text-left leading-tight duration-200',
           {
             '!text-center': textAlign === 'center',
             '!text-right': textAlign === 'right',
           },
         )}
+        style={{ fontSize: `${fontSize}rem` }}
       >
         {children}
       </p>

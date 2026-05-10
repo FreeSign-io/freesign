@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { Loader } from 'lucide-react';
 import { useRevalidator } from 'react-router';
 
+import { useFitFontSize } from '@documenso/lib/client-only/hooks/use-fit-font-size';
 import { DO_NOT_INVALIDATE_QUERY_ON_MUTATION } from '@documenso/lib/constants/trpc';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import type { TRecipientActionAuth } from '@documenso/lib/types/document-auth';
@@ -64,6 +65,16 @@ export const DocumentSigningDropdownField = ({
   const isLoading = isSignFieldWithTokenLoading || isRemoveSignedFieldWithTokenLoading;
   const shouldAutoSignField =
     (!field.inserted && localChoice) || (!field.inserted && isReadOnly && defaultValue);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const fontSize = useFitFontSize({
+    containerRef,
+    textRef,
+    text: field.customText,
+    maxFontRem: 0.825,
+    minFontRem: 0.5,
+  });
 
   const onSign = async (authOptions?: TRecipientActionAuth) => {
     try {
@@ -201,9 +212,15 @@ export const DocumentSigningDropdownField = ({
         )}
 
         {field.inserted && (
-          <p className="text-foreground text-[clamp(0.425rem,25cqw,0.825rem)] duration-200">
-            {field.customText}
-          </p>
+          <div ref={containerRef} className="flex h-full w-full items-center overflow-hidden">
+            <p
+              ref={textRef}
+              className="text-foreground w-full break-words text-center leading-tight duration-200"
+              style={{ fontSize: `${fontSize}rem` }}
+            >
+              {field.customText}
+            </p>
+          </div>
         )}
       </DocumentSigningFieldContainer>
     </div>
