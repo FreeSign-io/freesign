@@ -150,9 +150,15 @@ test('[TEAMS]: search does not reveal documents from other teams', async ({ page
   await page.getByPlaceholder('Search documents...').fill('Unique');
   await page.waitForURL(/query=Unique/);
 
-  await checkDocumentTabCount(page, 'All', 1);
+  // Wait for the filtered fetch to settle before clicking the "All" tab.
+  // The tab's <Link to=...> snapshots the searchParams at render time, so
+  // clicking before the post-debounce re-render commits would navigate to
+  // a stale href that drops `query=Unique`, dragging the table back to
+  // every team-A document instead of the single matching one.
   await expect(page.getByRole('link', { name: 'Unique Team A Document' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Unique Team B Document' })).not.toBeVisible();
+
+  await checkDocumentTabCount(page, 'All', 1);
 
   await apiSignout({ page });
 });
