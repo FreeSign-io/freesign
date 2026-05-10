@@ -92,7 +92,10 @@ test('[TEAMS]: can create a document inside a document folder', async ({ page })
     path.join(__dirname, '../../../assets/documenso-supporter-pledge.pdf'),
   );
 
-  await page.waitForTimeout(3000);
+  // Legacy upload navigates to /documents/{id}/edit once the document
+  // has been created. Waiting for the URL is far more reliable than a
+  // hard-coded sleep, which races with the create mutation under CI load.
+  await page.waitForURL(new RegExp(`/t/${team.url}/documents/[^/]+/edit$`));
 
   await expectTextToBeVisible(page, 'documenso-supporter-pledge.pdf');
 
@@ -897,7 +900,10 @@ test('[TEAMS]: documents inherit folder visibility', async ({ page }) => {
     path.join(__dirname, '../../../assets/documenso-supporter-pledge.pdf'),
   );
 
-  await page.waitForTimeout(3000);
+  // Legacy upload navigates to /documents/{id}/edit once the document
+  // has been created. Waiting for the URL is far more reliable than a
+  // hard-coded sleep, which races with the create mutation under CI load.
+  await page.waitForURL(new RegExp(`/t/${team.url}/documents/[^/]+/edit$`));
 
   await expectTextToBeVisible(page, 'documenso-supporter-pledge.pdf');
 
