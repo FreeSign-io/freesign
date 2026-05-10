@@ -46,17 +46,31 @@ export const apiSignout = async ({ page }: { page: Page }) => {
 const getCsrfToken = async (page: Page) => {
   const { request } = page.context();
 
-  const response = await request.fetch(`${NEXT_PUBLIC_WEBAPP_URL()}/api/auth/csrf`, {
-    method: 'get',
-  });
+  // The CSRF endpoint occasionally drops the connection under CI load
+  // ("socket hang up") which then poisons the entire signin flow. Retry
+  // a couple of times before giving up - the request itself is idempotent.
+  let lastError: unknown;
 
-  const { csrfToken } = await response.json();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await request.fetch(`${NEXT_PUBLIC_WEBAPP_URL()}/api/auth/csrf`, {
+        method: 'get',
+      });
 
-  if (!csrfToken) {
-    throw new Error('Invalid session');
+      const { csrfToken } = await response.json();
+
+      if (!csrfToken) {
+        throw new Error('Invalid session');
+      }
+
+      return csrfToken;
+    } catch (error) {
+      lastError = error;
+      await page.waitForTimeout(500 * (attempt + 1));
+    }
   }
 
-  return csrfToken;
+  throw lastError instanceof Error ? lastError : new Error('Failed to fetch CSRF token');
 };
 
 export const checkSessionValid = async (page: Page): Promise<boolean> => {
