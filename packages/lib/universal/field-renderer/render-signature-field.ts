@@ -9,6 +9,7 @@ import {
 } from './field-generic-items';
 import { calculateFieldPosition } from './field-renderer';
 import type { FieldToRender, RenderFieldElementOptions } from './field-renderer';
+import { fitFontSize } from './fit-font-size';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let SkiaImage: any = undefined;
@@ -173,6 +174,17 @@ const createFieldSignature = (
     width: fieldWidth,
     height: fieldHeight,
   } satisfies Partial<Konva.TextConfig>);
+
+  // For typed signatures, shrink the font so the full name fits within the
+  // signature box, mirroring the DOM-side useFitFontSize behaviour.
+  if (field.inserted && signature?.typedSignature) {
+    fitFontSize({
+      textNode: fieldText,
+      maxWidth: fieldWidth,
+      maxHeight: fieldHeight,
+      startSize: fontSize,
+    });
+  }
 
   return fieldText;
 };

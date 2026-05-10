@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
@@ -6,6 +6,7 @@ import { Trans } from '@lingui/react/macro';
 import { Loader } from 'lucide-react';
 import { useRevalidator } from 'react-router';
 
+import { useFitFontSize } from '@documenso/lib/client-only/hooks/use-fit-font-size';
 import { DO_NOT_INVALIDATE_QUERY_ON_MUTATION } from '@documenso/lib/constants/trpc';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import type { TRecipientActionAuth } from '@documenso/lib/types/document-auth';
@@ -59,7 +60,6 @@ export const DocumentSigningSignatureField = ({
 
   const signatureRef = useRef<HTMLParagraphElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [fontSize, setFontSize] = useState(2);
 
   const {
     fullName,
@@ -200,40 +200,14 @@ export const DocumentSigningSignatureField = ({
     }
   };
 
-  useLayoutEffect(() => {
-    if (!signatureRef.current || !containerRef.current || !signature?.typedSignature) {
-      return;
-    }
-
-    const adjustTextSize = () => {
-      const container = containerRef.current;
-      const text = signatureRef.current;
-
-      if (!container || !text) {
-        return;
-      }
-
-      let size = 2;
-      text.style.fontSize = `${size}rem`;
-
-      while (
-        (text.scrollWidth > container.clientWidth || text.scrollHeight > container.clientHeight) &&
-        size > 0.8
-      ) {
-        size -= 0.1;
-        text.style.fontSize = `${size}rem`;
-      }
-
-      setFontSize(size);
-    };
-
-    const resizeObserver = new ResizeObserver(adjustTextSize);
-    resizeObserver.observe(containerRef.current);
-
-    adjustTextSize();
-
-    return () => resizeObserver.disconnect();
-  }, [signature?.typedSignature]);
+  const fontSize = useFitFontSize({
+    containerRef,
+    textRef: signatureRef,
+    text: signature?.typedSignature,
+    maxFontRem: 2,
+    minFontRem: 0.8,
+    stepRem: 0.1,
+  });
 
   return (
     <DocumentSigningFieldContainer
