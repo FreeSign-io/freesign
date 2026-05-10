@@ -489,7 +489,17 @@ test.describe('legacy ID correctness', () => {
     });
 
     expect(createdTemplate).not.toBeNull();
-    expect(createdTemplate!.secondaryId).toBe(`template_${templateCounterAfter!.value}`);
+    // The counter is global, so parallel tests may bump it between save-as-template
+    // and the post-operation read. Verify the secondaryId uses the template_ prefix
+    // and the numeric suffix falls within the (before, after] window observed here.
+    expect(createdTemplate!.secondaryId).toMatch(/^template_\d+$/);
     expect(createdTemplate!.secondaryId).not.toMatch(/^document_/);
+
+    const templateCounterMatch = createdTemplate!.secondaryId.match(/^template_(\d+)$/);
+    expect(templateCounterMatch).not.toBeNull();
+
+    const templateCounterValue = Number(templateCounterMatch![1]);
+    expect(templateCounterValue).toBeGreaterThan(templateCounterBefore!.value);
+    expect(templateCounterValue).toBeLessThanOrEqual(templateCounterAfter!.value);
   });
 });
