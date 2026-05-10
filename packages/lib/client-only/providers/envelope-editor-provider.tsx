@@ -126,11 +126,16 @@ export const EnvelopeEditorProvider = ({
   }, []);
 
   const setEnvelope: typeof _setEnvelope = (action) => {
-    _setEnvelope((prev) => {
-      const next = typeof action === 'function' ? action(prev) : action;
-      envelopeRef.current = next;
-      return next;
-    });
+    // Compute and write the ref synchronously so callers that read envelopeRef
+    // immediately after setEnvelope (e.g. resetForms after flushAutosave) see
+    // the up-to-date value. React 18 may defer the state updater, but consumers
+    // of envelopeRef rely on it being the current source of truth.
+    const next =
+      typeof action === 'function'
+        ? (action as (prev: TEditorEnvelope) => TEditorEnvelope)(envelopeRef.current)
+        : action;
+    envelopeRef.current = next;
+    _setEnvelope(next);
   };
 
   const isEmbedded = editorConfig.embedded !== undefined;
